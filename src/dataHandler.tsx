@@ -93,7 +93,10 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
 export const getGroupedProducts = (products: Product[]): GroupedProducts => {
   return products.reduce((acc: GroupedProducts, product: Product) => {
-    if (!acc[product.category]) {
+    const { category, size, price } = product; // Removed unused quantity_min and item from destructuring
+    const sizeKey = size === null ? 'null' : size;
+
+    if (!acc[category]) {
       acc[product.category] = {};
     }
     if (!acc[product.category][product.item]) {
@@ -102,9 +105,11 @@ export const getGroupedProducts = (products: Product[]): GroupedProducts => {
         prices: {},
       };
     }
-
-    const sizeKey = product.size === null ? 'null' : product.size;
-    acc[product.category][product.item].prices[sizeKey] = product.price;
+    
+    const lowestQuantityPrice = acc[product.category][product.item].prices[sizeKey]; // Changed to const
+    if (lowestQuantityPrice === undefined || price < lowestQuantityPrice) {
+        acc[product.category][product.item].prices[sizeKey] = price;
+    }
 
     return acc;
   }, {});
@@ -127,10 +132,7 @@ export const getPrice = (productName: string, weightSize: string, qty: number, p
       (p.quantity_max === null || qty <= (p.quantity_max ?? Infinity))
   );
 
-  if (!applicableEntry) {
-    console.log('getPrice - No applicable entry found for qty:', qty, 'pricingEntries:', pricingEntries); // Log no applicable entry
-    return 0;
-  }
+  if (!applicableEntry) return 0;
 
   // Convert price to a number using parseFloat
   const productPrice = parseFloat(applicableEntry.price);
