@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
 import ProductSelector from './components/ProductSelector';
 import WeightSelector from './components/WeightSelector';
@@ -8,67 +8,61 @@ import ShoppingList from './components/ShoppingList';
 import PricePreview from './components/PricePreview';
 import Catalog from './components/Catalog';
 import { getAllProducts, getPrice as calculatePrice, getCategories } from './dataHandler';
+import { Product } from './dataHandler';
 
 const App = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<{ name: string; items: { name: string }[] }[]>([]);
+  const [loading, setLoading] = useState(true); // Add loading state
   const [items, setItems] = useState<{ product: string; weight: string; quantity: number; price: number }[]>([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedWeight, setSelectedWeight] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showCatalog, setShowCatalog] = useState(false);
-
-  const products = useMemo(() => getAllProducts(), []);
-
-  const categories = useMemo(() => {
-    return getCategories(products);
-  }, [products]);
-
-  const selectedProductPricing = useMemo(() => {
-    return products.filter(p => p.item === selectedProduct);
-  }, [selectedProduct, products]);
+  const selectedProductPricing = useMemo(() => products.filter(p => p.item === selectedProduct), [selectedProduct, products]);
 
 
-
-
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true); // Set loading to true when fetching starts
+      try {
+        const productsFromApi = await getAllProducts();
+        setProducts(productsFromApi);
+        setCategories(getCategories(productsFromApi));
+      } catch (error) {
+        console.error("Error fetching product data:", error);
+      } finally {
+        setLoading(false); // Set loading to false when fetching completes or errors
+      }
+    };
+    fetchData();
+  }, []);
 
   const addItem = () => {
     if (!selectedProduct) return;
-
     const price = calculatePrice(selectedProduct, selectedWeight, quantity, products);
-    setItems([
-      ...items,
-      {
-        product: selectedProduct,
-        weight: selectedWeight,
-        quantity,
-        price,
-      },
-    ]);
+    setItems([...items, { product: selectedProduct, weight: selectedWeight, quantity, price }]);
     setSelectedProduct('');
     setSelectedWeight('');
     setQuantity(1);
   };
-
-  const removeItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index));
-  };
-
+  
+  const removeItem = (index: number) => setItems(items.filter((_, i) => i !== index));
+  
   const handlePriceClick = (product: string, size: string | null) => {
     setSelectedProduct(product);
-    setSelectedWeight(size || ''); // Set to empty string if size is null
-    setQuantity(1); // Reset quantity to 1
+    setSelectedWeight(size || '');
+    setQuantity(1);
   };
-
+  
   const handleQuantityChange = (index: number, newQuantity: number) => {
     setItems(prevItems => {
       const updatedItems = [...prevItems];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        quantity: newQuantity,
-        price: calculatePrice(updatedItems[index].product, updatedItems[index].weight, newQuantity, products)
-      };
+      updatedItems[index] = { ...updatedItems[index], quantity: newQuantity, price: calculatePrice(updatedItems[index].product, updatedItems[index].weight, newQuantity, products) };
       return updatedItems;
     });
   };
+
 
   return (
     <div className="bg-bg-main py-6 flex flex-col items-start sm:py-12 px-2 pt-6">
@@ -78,46 +72,29 @@ const App = () => {
           <CardHeader>
             <div className="flex justify-between items-center w-full">
               <CardTitle className="text-claybrown-main">Product Selector</CardTitle>
-              <button
-                onClick={() => setShowCatalog(true)}
-                className="bg-terracotta-main hover:bg-terracotta-light text-white font-bold py-2 px-4 rounded"
-              >
+              <button onClick={() => setShowCatalog(true)} className="bg-terracotta-main hover:bg-terracotta-light text-white font-bold py-2 px-4 rounded">
                 Select from Catalog
               </button>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4 mb-4">
-              <ProductSelector
-                categories={categories}
-                selectedProduct={selectedProduct}
-                onProductChange={setSelectedProduct}
-              />
-              <WeightSelector
-                pricing={selectedProductPricing}
-                selectedWeight={selectedWeight}
-                onWeightChange={setSelectedWeight}
-                hideSelect={selectedProductPricing.length > 0 && !selectedProductPricing[0].size}
-              />
-              <QuantityInput
-                quantity={quantity}
-                onQuantityChange={setQuantity}
-              />
-            </div>
-
-            <PricePreview
-              selectedProduct={selectedProduct}
-              selectedWeight={selectedWeight}
-              quantity={quantity}
-              calculatePrice={calculatePrice}
-              products={products}
-            >
-              <AddItemButton onClick={addItem} />
-            </PricePreview>
+          {loading ? ( // Display loading message
+              <p>Loading products...</p>
+            ) : (
+              <>
+                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                  <ProductSelector categories={categories} selectedProduct={selectedProduct} onProductChange={setSelectedProduct} />
+                  <WeightSelector pricing={selectedProductPricing} selectedWeight={selectedWeight} onWeightChange={setSelectedWeight} hideSelect={selectedProductPricing.length > 0 && !selectedProductPricing[0].size} />
+                  <QuantityInput quantity={quantity} onQuantityChange={setQuantity} />
+                </div>
+                <PricePreview selectedProduct={selectedProduct} selectedWeight={selectedWeight} quantity={quantity} calculatePrice={calculatePrice} products={products}>
+                  <AddItemButton onClick={addItem} />
+                </PricePreview>
+              </>
+            )}
           </CardContent>
         </Card>
 
-        {/* Shopping List Container */}
         <Card className="w-full bg-bg-light border-gray-200 shadow-md mt-4">
           <CardHeader>
             <CardTitle className="text-claybrown-main">Shopping List</CardTitle>
@@ -133,4 +110,5 @@ const App = () => {
   );
 };
 
+export default App;
 export default App;

@@ -1,5 +1,3 @@
-import productData from './products.json';
-
 export interface Product {
   category: string;
   item: string;
@@ -68,8 +66,18 @@ export const parseSize = (sizeString: string | null): number => {
   }
 }
 
-export const getAllProducts = (): Product[] => {
-  return productData;
+export const getAllProducts = async (): Promise<Product[]> => {
+  try {
+    const response = await fetch('/wp-json/cclist/v1/products');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching product data from WordPress API:", error);
+    return [];
+  }
 };
 
 export const getGroupedProducts = (products: Product[]): GroupedProducts => {
@@ -125,3 +133,16 @@ export const getCategories = (products: Product[]): { name: string; items: { nam
   });
   return Array.from(categoryMap.values());
 };
+
+// --- Test script to run getAllProducts ---
+// const testGetAllProducts = async () => {
+//   try {
+//     const products = await getAllProducts();
+//     console.log("Products fetched from API:", products);
+//   } catch (error) {
+//     console.error("Error testing getAllProducts:", error);
+//   }
+// };
+
+// testGetAllProducts();
+// --- End test script ---
