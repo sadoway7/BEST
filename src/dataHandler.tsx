@@ -72,7 +72,18 @@ export const getAllProducts = async (): Promise<Product[]> => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data = await response.json();
+    let data = await response.json();
+    // Convert prices to numbers in the fetched data
+    data = data.map((product: any) => { // Explicitly type product parameter as any
+      const parsedProduct = { ...product, price: parseFloat(product.price) };
+      if (product.prices) {
+        parsedProduct.prices = Object.keys(product.prices).reduce((acc: Record<string, number>, size) => { // Explicitly type acc in reduce
+          acc[size] = parseFloat(product.prices[size]);
+          return acc;
+        }, {});
+      }
+      return parsedProduct;
+    });
     return data;
   } catch (error) {
     console.error("Error fetching product data from WordPress API:", error);
@@ -122,11 +133,11 @@ export const getPrice = (productName: string, weightSize: string, qty: number, p
   }
 
   // Convert price to a number using parseFloat
-  const productPrice: number = parseFloat(applicableEntry.price);
+  const productPrice = parseFloat(applicableEntry.price);
   let price = productPrice * qty;
 
   if (isNaN(productPrice)) {
-    console.error('Invalid price'); // Simplified error message
+    console.error('getPrice - Invalid price (not a number):', String(applicableEntry.price)); // Cast to string
     return 0; // Return 0 if price is not a valid number
   }
 
