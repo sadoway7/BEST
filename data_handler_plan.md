@@ -1,74 +1,50 @@
-# Plan for Creating a Data Handler Module
+# Data Flow in Ceramics Canada Price Calculator
 
-This document outlines the plan for creating a separate module (`src/dataHandler.tsx`) to handle the data for the `Catalog` component and the "calculator part" (`src/App.tsx`).
+This document explains the data flow in the Ceramics Canada Price Calculator application after the introduction of the `src/dataHandler.tsx` module.
 
-## 1. Analyze the existing data handling logic:
+## Overview of Data Flow
 
-*   Carefully examine the data handling logic in `src/App.tsx` and `src/components/Catalog.tsx` to identify the common data transformations and calculations.
-*   Identify the specific data structures used by each component and how they are used.
-*   Consider how `PricePreview.tsx`, `ProductSelector.tsx`, `ShoppingList.tsx`, and `WeightSelector.tsx` depend on the data handling logic.
-*   **Specifically analyze how products with price breaks are handled and identify the cause of the potential duplication issue.**
+The application's data flow is now centralized in the `src/dataHandler.tsx` module. This module is responsible for fetching, processing, and providing product data to various components in the application. The data flow can be summarized as follows:
 
-## 2. Define a common data structure:
+1.  **Data Fetching:** The `src/dataHandler.tsx` module fetches product data from `products.json` using the `getAllProducts` function. This function returns an array of `Product` objects.
+2.  **Data Processing:** The `src/dataHandler.tsx` module provides functions to process and transform the product data into formats suitable for different components:
+    *   `getGroupedProducts(products: Product[])`: Groups products by category and item for the `Catalog` component.
+    *   `getCategories(products: Product[])`: Extracts unique categories from the product data for the `ProductSelector` component.
+    *   `getPrice(productName: string, weightSize: string, qty: number, products: Product[])`: Calculates the price for a given product, weight, and quantity, considering price breaks and discounts.
+    *   `parseSize(sizeString: string | null)`: Parses and normalizes size strings.
+3.  **Data Consumption:** Components like `App.tsx`, `Catalog.tsx`, `PricePreview.tsx`, `ProductSelector.tsx`, and `ShoppingList.tsx` import functions from `src/dataHandler.tsx` to access and utilize the processed product data.
 
-*   Based on the analysis, define a common data structure that can be used as the basis for all components. This data structure should be flexible enough to accommodate the different requirements of each component.
-*   The common data structure will likely include the following:
-    *   A list of all products with their properties (category, item, size, price, quantity_min, quantity_max, discount, etc.).
-*   **The common data structure should ensure that products with price breaks are only listed once, with the price breaks handled as a property of the product.**
+## Component-Specific Data Flow
 
-## 3. Create a new file (`src/dataHandler.tsx`):
+*   **`App.tsx`:**
+    *   Fetches all products using `getAllProducts()` from `src/dataHandler.tsx` and stores it in the `products` state variable.
+    *   Calculates categories using `getCategories(products)` and stores it in the `categories` state variable.
+    *   Passes the `categories` to `ProductSelector`.
+    *   Passes the `products` and `calculatePrice` function (which is `getPrice` from `dataHandler.tsx`) to `PricePreview`, `ShoppingList`, and `Catalog` components.
+*   **`Catalog.tsx`:**
+    *   Receives the `products` array as a prop from `App.tsx`.
+    *   Uses the `products` prop to group and display products by category using the `getGroupedProducts` logic within the component itself (previously this logic was in `dataHandler.tsx`, but was moved back to the component for better component-specific data structuring).
+    *   Calls `onPriceClick` prop function when a price is clicked, passing the product information back to `App.tsx`.
+*   **`PricePreview.tsx`:**
+    *   Receives `selectedProduct`, `selectedWeight`, `quantity`, `calculatePrice`, and `products` props from `App.tsx`.
+    *   Uses the `calculatePrice` function and `products` prop to display the preview price.
+*   **`ProductSelector.tsx`:**
+    *   Receives the `categories` array as a prop from `App.tsx`.
+    *   Displays product categories in a select dropdown.
+*   **`ShoppingList.tsx`:**
+    *   Receives `items`, `onRemoveItem`, `onQuantityChange`, `calculatePrice`, and `products` props from `App.tsx`.
+    *   Uses the `calculatePrice` function and `products` prop to calculate and display prices in the shopping list.
 
-*   Create a new file named `src/dataHandler.tsx` to encapsulate the data handling logic.
+## `src/dataHandler.tsx` Module
 
-## 4. Implement data processing functions:
+This module acts as a central data management layer, providing functions to access and manipulate product data. It encapsulates the data fetching and processing logic, making it easier to maintain and update the data handling in the application.
 
-*   In `src/dataHandler.tsx`, implement functions that take the common data structure as input and return the data in the format required by each component.
-    *   `getAllProducts()`: Returns the list of all products from `products.json`. This will be the base data.
-    *   `getGroupedProducts(products: Product[])`: Takes the list of products and returns the grouped structure of products by category and item, suitable for the `Catalog` component. **This function should ensure that products with price breaks are only listed once.**
-    *   `getPrice(productName: string, weightSize: string, qty: number, products: Product[])`: Takes the list of products and calculates the price based on the selected product, weight, and quantity, suitable for the "calculator part" (`src/App.tsx`). **This function should correctly handle price breaks based on the quantity.**
-    *   `getCategories(products: Product[])`: Takes the list of products and returns a list of categories, suitable for the `ProductSelector` component.
+*   **`products.json`:**  Stores the raw product data.
+*   **`Product` interface:** Defines the structure of a product object.
+*   **`getAllProducts()`:** Fetches and returns all products from `products.json`.
+*   **`getGroupedProducts()`:**  Groups products for the `Catalog` component.
+*   **`getCategories()`:** Returns a list of product categories.
+*   **`getPrice()`:** Calculates the price of a product based on quantity and discounts.
+*   **`parseSize()`:** Utility function to parse and normalize product sizes.
 
-## 5. Export the functions and types:
-
-*   Export the functions and types from `src/dataHandler.tsx` so that they can be used by other components.
-
-## 6. Update `src/App.tsx`:
-
-*   Import the functions and types from `src/dataHandler.tsx`.
-*   Replace the existing data handling logic with calls to the imported functions, ensuring it receives the data in the format it needs.
-*   Update the component to use the common data structure.
-
-## 7. Update `src/components/Catalog.tsx`:
-
-*   Import the functions and types from `src/dataHandler.tsx`.
-*   Replace the existing data handling logic with calls to the imported functions, ensuring it receives the data in the format it needs.
-*   Update the component to use the common data structure.
-
-## 8. Update `src/components/PricePreview.tsx`:
-
-*   Import the `getPrice` function from `src/dataHandler.tsx`.
-
-## 9. Update `src/components/ProductSelector.tsx`:
-
-*   Import the `getCategories` function from `src/dataHandler.tsx`.
-
-## 10. Update `src/components/ShoppingList.tsx`:
-
-*   Import the `getPrice` function from `src/dataHandler.tsx`.
-
-## 11. Update `src/components/WeightSelector.tsx`:
-
-*   No changes needed.
-
-## 12. Test the changes:
-
-*   Thoroughly test the changes to ensure that all components are working correctly and that the data is being handled consistently.
-*   **Specifically test the handling of products with price breaks to ensure that they are only listed once and that the correct price is calculated based on the quantity.**
-
-## 13. Refactor `parseSize` function:
-
-*   Since the `parseSize` function is only used in `src/components/Catalog.tsx`, move it to `src/dataHandler.tsx` and export it.
-
-## 14. Update `src/components/Catalog.tsx`:
-
-*   Import the `parseSize` function from `src/dataHandler.tsx`.
+By centralizing the data handling logic in `src/dataHandler.tsx`, the application achieves better code organization, reusability, and maintainability. Components now rely on well-defined functions to access and manipulate data, making the codebase cleaner and easier to understand.
