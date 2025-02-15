@@ -140,7 +140,8 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                   return (
                     <ul className="mt-2">
                       {Object.entries(products).map(([itemName, product]) => { // Loop for each item in category
-                        console.log('Catalog - Rendering item:', itemName, 'in category:', category); // Log item rendering
+                        console.log('Catalog - Rendering item:', itemName, 'product:', product); // Log itemName and product
+                        console.log('Catalog - Item - product.item:', product.item, 'product.prices:', product.prices); // NEW LOG: Log product.item and product.prices
                         return (
                           <li key={itemName} className="py-1">
                             <span className="font-semibold">{product.item}:</span>
@@ -153,7 +154,10 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                                   onClose();
                                 }}
                               >
-                                {size === 'null' ? 'Price' : size}: ${price?.toFixed(2) ?? 'N/A'}
+                                {size === 'null' ? 'Price' : size}: ${(() => {
+                                  console.log('Catalog - Rendering price button - size:', size, 'price:', price); // Log size and price before toFixed
+                                  return `${price?.toFixed(2) ?? 'N/A'}`;
+                                })()}
                               </button>
                             ))}
                           </li>
