@@ -121,7 +121,15 @@ export const getPrice = (productName: string, weightSize: string, qty: number, p
     return 0;
   }
 
-  let price = applicableEntry.price * qty;
+  // Convert price to a number using parseFloat
+  const productPrice: number = parseFloat(applicableEntry.price);
+  let price = productPrice * qty;
+
+  if (isNaN(productPrice)) {
+    console.error('Invalid price'); // Simplified error message
+    return 0; // Return 0 if price is not a valid number
+  }
+
   if (applicableEntry.discount) {
     price *= (1 - applicableEntry.discount);
   }
