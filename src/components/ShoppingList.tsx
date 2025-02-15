@@ -1,4 +1,5 @@
 import React from 'react';
+import { Product } from '../dataHandler';
 import { Trash2, Plus, Minus } from 'lucide-react';
 
 interface ShoppingListItem {
@@ -12,10 +13,11 @@ interface ShoppingListProps {
   items: ShoppingListItem[];
   onRemoveItem: (index: number) => void;
   onQuantityChange: (index: number, newQuantity: number) => void;
-  getPrice: (productName: string, weightSize: string, qty: number) => number; // Add getPrice prop
+  calculatePrice: (productName: string, weightSize: string, qty: number, products: Product[]) => number; // Renamed to calculatePrice and expects products
+  products: Product[];
 }
 
-const ShoppingList: React.FC<ShoppingListProps> = ({ items, onRemoveItem, onQuantityChange, getPrice }) => {
+const ShoppingList: React.FC<ShoppingListProps> = ({ items, onRemoveItem, onQuantityChange, calculatePrice, products }) => {
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
   return (
@@ -33,8 +35,8 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ items, onRemoveItem, onQuan
         </thead>
         <tbody>
           {items.map((item, index) => {
-            // Calculate the *correct* unit price using getPrice
-            const unitPrice = getPrice(item.product, item.weight, item.quantity) / item.quantity;
+            // Calculate the *correct* unit price using calculatePrice, passing products
+            const unitPrice = calculatePrice(item.product, item.weight, item.quantity, products) / item.quantity;
 
             return (
               <tr key={index} className="border-b border-gray-300">
@@ -77,7 +79,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ items, onRemoveItem, onQuan
                 Grand Total:
               </td>
               {/* Medium and larger screens (show all columns) */}
-              <td colSpan="3" className="text-right p-2 hidden sm:table-cell">
+              <td colSpan={3} className="text-right p-2 hidden sm:table-cell">
                 Grand Total:
               </td>
               <td className="text-right p-2">${total.toFixed(2)}</td>

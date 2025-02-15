@@ -1,21 +1,24 @@
 import React from 'react';
+import { Product } from '../dataHandler';
 
 interface PricePreviewProps {
   selectedProduct: string;
   selectedWeight: string;
   quantity: number;
-  getPrice: (productName: string, weightSize: string, qty: number) => number;
-  children?: React.ReactNode; // Add children prop
+  calculatePrice: (productName: string, weightSize: string, qty: number, products: Product[]) => number;
+  products: Product[];
+  children?: React.ReactNode;
 }
 
 const PricePreview: React.FC<PricePreviewProps> = ({
   selectedProduct,
   selectedWeight,
   quantity,
-  getPrice,
-  children, // Receive children
+  calculatePrice,
+  products,
+  children,
 }) => {
-  const price = getPrice(selectedProduct, selectedWeight, quantity);
+  const price = calculatePrice(selectedProduct, selectedWeight, quantity, products);
 
   return (
     <div className="mb-4 p-4 border border-gray-300 rounded bg-bg-light">
@@ -41,7 +44,7 @@ const PricePreview: React.FC<PricePreviewProps> = ({
         <p className="text-gray-700">No product selected.</p>
       )}
       <div className="flex justify-end mt-2">
-        {children} {/* Render children here */}
+        {children}
       </div>
     </div>
   );

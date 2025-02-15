@@ -5,9 +5,9 @@ import WeightSelector from './components/WeightSelector';
 import QuantityInput from './components/QuantityInput';
 import AddItemButton from './components/AddItemButton';
 import ShoppingList from './components/ShoppingList';
-import productData from './products.json';
 import PricePreview from './components/PricePreview';
 import Catalog from './components/Catalog';
+import { getAllProducts, getPrice as calculatePrice, getCategories } from './dataHandler';
 
 const App = () => {
   const [items, setItems] = useState<{ product: string; weight: string; quantity: number; price: number }[]>([]);
@@ -16,49 +16,24 @@ const App = () => {
   const [quantity, setQuantity] = useState(1);
   const [showCatalog, setShowCatalog] = useState(false);
 
+  const products = useMemo(() => getAllProducts(), []);
+
   const categories = useMemo(() => {
-    const categoryMap = new Map();
-    productData.forEach(product => {
-      if (!categoryMap.has(product.category)) {
-        categoryMap.set(product.category, { name: product.category, items: [] });
-      }
-      if (!categoryMap.get(product.category).items.some((item: any) => item.name === product.item)) {
-        categoryMap.get(product.category).items.push({ name: product.item });
-      }
-    });
-    return Array.from(categoryMap.values());
-  }, []);
+    return getCategories(products);
+  }, [products]);
 
   const selectedProductPricing = useMemo(() => {
-    return productData.filter(p => p.item === selectedProduct);
-  }, [selectedProduct]);
+    return products.filter(p => p.item === selectedProduct);
+  }, [selectedProduct, products]);
 
-  const getPrice = (productName: string, weightSize: string, qty: number): number => {
-    const pricingEntries = productData.filter(
-      (p) => p.item === productName && (p.size === weightSize || p.size === null)
-    );
 
-    if (pricingEntries.length === 0) return 0;
 
-    const applicableEntry = pricingEntries.find(
-      (p) =>
-        qty >= p.quantity_min &&
-        (p.quantity_max === null || qty <= p.quantity_max)
-    );
 
-    if (!applicableEntry) return 0;
-
-    let price = applicableEntry.price * qty;
-    if (applicableEntry.discount) {
-      price *= (1 - applicableEntry.discount);
-    }
-    return price;
-  };
 
   const addItem = () => {
     if (!selectedProduct) return;
 
-    const price = getPrice(selectedProduct, selectedWeight, quantity);
+    const price = calculatePrice(selectedProduct, selectedWeight, quantity, products);
     setItems([
       ...items,
       {
@@ -89,7 +64,7 @@ const App = () => {
       updatedItems[index] = {
         ...updatedItems[index],
         quantity: newQuantity,
-        price: getPrice(updatedItems[index].product, updatedItems[index].weight, newQuantity)
+        price: calculatePrice(updatedItems[index].product, updatedItems[index].weight, newQuantity, products)
       };
       return updatedItems;
     });
@@ -134,9 +109,10 @@ const App = () => {
               selectedProduct={selectedProduct}
               selectedWeight={selectedWeight}
               quantity={quantity}
-              getPrice={getPrice}
+              calculatePrice={calculatePrice}
+              products={products}
             >
-                <AddItemButton onClick={addItem} />
+              <AddItemButton onClick={addItem} />
             </PricePreview>
           </CardContent>
         </Card>
@@ -147,12 +123,12 @@ const App = () => {
             <CardTitle className="text-claybrown-main">Shopping List</CardTitle>
           </CardHeader>
           <CardContent>
-            <ShoppingList items={items} onRemoveItem={removeItem} onQuantityChange={handleQuantityChange} getPrice={getPrice} />
+            <ShoppingList items={items} onRemoveItem={removeItem} onQuantityChange={handleQuantityChange} calculatePrice={calculatePrice} products={products} />
           </CardContent>
         </Card>
 
       </div>
-       {showCatalog && <Catalog onClose={() => setShowCatalog(false)} onPriceClick={handlePriceClick} />}
+       {showCatalog && <Catalog onClose={() => setShowCatalog(false)} onPriceClick={handlePriceClick} products={products} />}
     </div>
   );
 };
