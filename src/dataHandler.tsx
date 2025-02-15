@@ -106,8 +106,8 @@ export const getGroupedProducts = (products: Product[]): GroupedProducts => {
       };
     }
     
-    const lowestQuantityPrice = acc[product.category][product.item].prices[sizeKey]; // Changed to const
-    if (lowestQuantityPrice === undefined || price < lowestQuantityPrice) {
+    const lowestQuantityPrice = acc[product.category][product.item].prices[sizeKey]; // Changed to const - ESLint fix
+    if (!lowestQuantityPrice || price > lowestQuantityPrice) { // Corrected logic: price > lowestQuantityPrice to find HIGHEST price for lowest quantity
         acc[product.category][product.item].prices[sizeKey] = price;
     }
 
