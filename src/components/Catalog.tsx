@@ -127,7 +127,7 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
           return (
             <div key={category} className="mb-4">
               <div
-                className="flex items-center justify-between bg-warmbeige-main text-white p-2 rounded cursor-pointer"
+                className="flex items-center justify-between bg-warmbeige-light text-black p-2  cursor-pointer"
                 onClick={() => toggleSection(category)}
               >
                 <h3 className="font-bold">{category}</h3>
@@ -144,11 +144,11 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                         console.log('Catalog - Item - product.item:', product.item, 'product.prices:', product.prices); // NEW LOG: Log product.item and product.prices
                         return (
                           <li key={itemName} className="py-1">
-                            <span className="font-semibold">{product.item}:</span>
+                            <span className="">{product.item}:</span>
                             {Object.entries(product.prices).map(([size, price]) => (
                               <button
                                 key={size}
-                                className="ml-2 px-3 py-1 bg-warmbeige-light rounded hover:bg-warmbeige-main text-gray-800"
+                                className="ml-2 px-3 py-1 bg-bg-light  hover:bg-warmbeige-light text-black"
                                 onClick={() => {
                                   onPriceClick(product.item, size === 'null' ? null : size);
                                   onClose();

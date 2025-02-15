@@ -6,6 +6,9 @@ export interface Product {
   quantity_min?: number;
   quantity_max?: number | null;
   discount?: number;
+  prices?: { // Add optional prices property to Product interface
+    [size: string]: number | undefined;
+  };
 }
 
 export interface GroupedProducts {
@@ -74,13 +77,16 @@ export const getAllProducts = async (): Promise<Product[]> => {
     }
     let data = await response.json();
     // Convert prices to numbers in the fetched data
-    data = data.map((product: any) => { // Explicitly type product parameter as any
-      const parsedProduct = { ...product, price: parseFloat(product.price) };
+    data = data.map((product: Product) => { // Explicitly type product parameter as Product
+      const parsedProduct: Product = { ...product, price: parseFloat(String(product.price)) };
       if (product.prices) {
         parsedProduct.prices = Object.keys(product.prices).reduce((acc: Record<string, number>, size) => { // Explicitly type acc in reduce
-          acc[size] = parseFloat(product.prices[size]);
+          const priceValue = product.prices?.[size]; // Safely access potentially undefined price
+          acc[size] = priceValue !== undefined ? parseFloat(String(priceValue)) : 0; // Use 0 as default if undefined
           return acc;
-        }, {});
+        }, {} as Record<string, number>);
+      } else {
+        parsedProduct.prices = {}; // Ensure prices is always initialized, even if not in source data
       }
       return parsedProduct;
     });
@@ -106,11 +112,11 @@ export const getGroupedProducts = (products: Product[]): GroupedProducts => {
       };
     }
     
+    
     const lowestQuantityPrice = acc[product.category][product.item].prices[sizeKey]; // Changed to const - ESLint fix
-    if (!lowestQuantityPrice || price > lowestQuantityPrice) { // Corrected logic: price > lowestQuantityPrice to find HIGHEST price for lowest quantity
+    if (!lowestQuantityPrice || price < lowestQuantityPrice) { // Corrected logic: price < lowestQuantityPrice to find LOWEST price for lowest quantity
         acc[product.category][product.item].prices[sizeKey] = price;
     }
-
     return acc;
   }, {});
 };
@@ -139,8 +145,9 @@ export const getPrice = (productName: string, weightSize: string, qty: number, p
   let price = productPrice * qty;
 
   if (isNaN(productPrice)) {
-    console.error('getPrice - Invalid price (not a number):', String(applicableEntry.price)); // Cast to string
+    console.error(`getPrice - Invalid price (not a number): ${applicableEntry?.price}`); // Use template literals for string conversion
     return 0; // Return 0 if price is not a valid number
+  // const productPrice = parseFloat(applicableEntry.price); // Commenting out line 144
   }
 
   if (applicableEntry.discount) {
