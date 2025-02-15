@@ -62,8 +62,18 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ items, onRemoveItem, onQuan
                       </button>
                   </div>
                 </td>
-                <td className="p-2 text-right hidden sm:table-cell">${unitPrice.toFixed(2)}</td>
-                <td className="p-2 text-right">${item.price.toFixed(2)}</td>
+                <td className="p-2 text-right hidden sm:table-cell">
+                  ${(() => {
+                    console.log('unitPrice:', unitPrice);
+                    return unitPrice && typeof unitPrice === 'number' ? unitPrice.toFixed(2) : 'N/A';
+                  })()}
+                </td>
+                <td className="p-2 text-right">
+                  ${(() => {
+                    console.log('item.price:', item.price);
+                    return item.price && typeof item.price === 'number' ? item.price.toFixed(2) : 'N/A';
+                  })()}
+                </td>
                 <td className="p-2">
                   <button onClick={() => onRemoveItem(index)} className="text-terracotta-main hover:text-terracotta-light">
                     <Trash2 size={18}  />
