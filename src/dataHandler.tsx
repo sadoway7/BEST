@@ -100,11 +100,15 @@ export const getGroupedProducts = (products: Product[]): GroupedProducts => {
 };
 
 export const getPrice = (productName: string, weightSize: string, qty: number, products: Product[]): number => {
+  console.log('getPrice - Input parameters:', { productName, weightSize, qty, products }); // Log input parameters
   const pricingEntries = products.filter(
     (p) => p.item === productName && (p.size === weightSize || p.size === null)
   );
 
-  if (pricingEntries.length === 0) return 0;
+  if (pricingEntries.length === 0) {
+    console.log('getPrice - No pricing entries found for:', { productName, weightSize }); // Log no pricing entries
+    return 0;
+  }
 
   const applicableEntry = pricingEntries.find(
     (p) =>
@@ -112,12 +116,16 @@ export const getPrice = (productName: string, weightSize: string, qty: number, p
       (p.quantity_max === null || qty <= (p.quantity_max ?? Infinity))
   );
 
-  if (!applicableEntry) return 0;
+  if (!applicableEntry) {
+    console.log('getPrice - No applicable entry found for qty:', qty, 'pricingEntries:', pricingEntries); // Log no applicable entry
+    return 0;
+  }
 
   let price = applicableEntry.price * qty;
   if (applicableEntry.discount) {
     price *= (1 - applicableEntry.discount);
   }
+  console.log('getPrice - Calculated price:', price, 'applicableEntry:', applicableEntry); // Log calculated price
   return price;
 };
 
