@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import { Product } from '../dataHandler';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -92,29 +91,38 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                   return (
                     <ul className="mt-2">
                       {Object.entries(products).map(([itemName, product]) => {
+                        console.log('Catalog - Item Prices:', product.prices); // ADDED LOGGING - Before the return
                         return (
                           <li key={itemName} className="py-2 border-b border-gray-200">
                             <div className="flex justify-between items-center py-1">
                               <span className=" ">{product.item}</span>
                               <div className="flex space-x-4">
-                                {Object.entries(product.prices).map(([size, price]) => (
-                                  <button
-                                    key={size}
-                                    className="px-4 py-2 bg-bg-light hover:bg-warmbeige-light text-black text-sm"
-                                    onClick={() => {
-                                      onPriceClick(product.item, size === 'null' ? null : size);
-                                      onClose();
-                                    }}
-                                  >
-                                    ${(() => `${price?.toFixed(2) ?? 'N/A'}`)()}
-                                  </button>
-                                ))}
+                                {Object.entries(product.prices).map(([size, price]) => {
+                                  console.log('Catalog - Price Button - size:', size, 'price:', price); // ADDED LOGGING - Before the return
+                                  return (
+                                    <button
+                                      key={size}
+                                      className="px-4 py-2 bg-bg-light hover:bg-warmbeige-light text-black text-sm"
+                                      onClick={() => {
+                                        onPriceClick(product.item, size === 'null' ? null : size);
+                                        onClose();
+                                      }}
+                                    >
+                                      ${(() => `${price?.toFixed(2) ?? 'N/A'}`)()}
+                                    </button>
+                                  );
+                                })}
                               </div>
                             </div>
                             <div className="flex justify-end space-x-4 mt-0.5">
-                              {Object.keys(product.prices).map((size) => (
-                                <span key={size} className="text-xs text-gray-500">{size === 'null' ? 'Price' : size}</span>
-                              ))}
+                              {Object.keys(product.prices).map((size) => {
+                                console.log('Catalog - Size Banner - size:', size); // ADDED LOGGING - Before the return
+                                return (
+                                  <span key={size} className="text-xs text-gray-500">
+                                    {size === 'null' ? 'Price' : size}
+                                  </span>
+                                );
+                              })}
                             </div>
                           </li>
                         );

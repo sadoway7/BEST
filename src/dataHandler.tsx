@@ -117,9 +117,12 @@ export const getGroupedProducts = (products: Product[]): GroupedProducts => {
     if (!lowestQuantityPrice || price > lowestQuantityPrice) { // Original logic: price > lowestQuantityPrice to find HIGHEST price for lowest quantity
         acc[product.category][product.item].prices[sizeKey] = price;
     }
+    console.log('getGroupedProducts - groupedProducts:', acc); // ADDED LOGGING
     return acc;
   }, {});
 };
+
+
 
 export const getPrice = (productName: string, weightSize: string, qty: number, products: Product[]): number => {
   console.log('getPrice - Input parameters:', { productName, weightSize, qty, products }); // Log input parameters
