@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-bg-main text-gray-800 text-sm; /* Use off-white background and dark gray text */
+}
+
+@media (min-width: 640px) {
+  body {
+    @apply text-base;
+  }
+}
+
+/* General input styling */
+select,
+input[type="number"] {
+  @apply bg-bg-light border border-gray-300 text-gray-800 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-terracotta-light; /* Use terracotta for focus ring */
+}
+
+/* General button styling */
+button {
+   @apply rounded-md py-2 px-4; /* Added rounded-md here */
+}
+
+/* Scrollbar Styling */
+/* WebKit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f2ef; /* Color of the track (background) */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a66643; /* Use claybrown-light for better contrast */
+  border-radius: 4px; /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8b4513; /* Use claybrown-main for hover */
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin; /* 'thin' or 'auto' or 'none' */
+  scrollbar-color: #a66643 #f5f2ef; /* thumb and track color */
+}
+
+/* Target specific scrollable areas */
+.scrollable {
+    scrollbar-width: thin;
+    scrollbar-color: #a66643 #f5f2ef;
+}
+.scrollable::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.scrollable::-webkit-scrollbar-track {
+    background: #f5f2ef;
+}
+.scrollable::-webkit-scrollbar-thumb {
+    background: #a66643;
+    border-radius: 4px;
+}
+.scrollable::-webkit-scrollbar-thumb:hover {
+    background: #8b4513;
+}
