@@ -75,10 +75,10 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
     const initialState: Record<string, boolean> = {};
     Object.keys(products.reduce((acc: Record<string, boolean>, product: Product) => { // use products prop
-      acc[product.category] = true;
+      acc[product.category] = false;
       return acc;
     }, {})).forEach(category => {
-      initialState[category] = true;
+      initialState[category] = false;
     });
     return initialState;
   });
