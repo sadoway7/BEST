@@ -1,152 +1,96 @@
-# Revised Plan for Integrating WordPress REST API - Version 4 (Data Flow Clarified)
+# WordPress REST API Data Structure for cclist App
 
-This document provides a clear, self-contained plan to integrate a WordPress REST API for fetching product data into the Ceramics Canada Price Calculator application. **All data fetching is centralized in `src/dataHandler.tsx`, which acts as the single source of product data for the entire application. Components like `App.tsx` and `Catalog.tsx` receive data as props and focus on presentation and user interface logic.**
+This document outlines the required data structure for the WordPress REST API endpoint that provides product data to the cclist application. The API should return a JSON array of product objects, where each object conforms to the following structure:
 
-## 1. Understand the WordPress REST API Endpoint:
+## Product Object Structure
 
-*   **API Endpoint:**  `/wp-json/cclist/v1/products` (GET request).
-*   **API Response Structure:** JSON array of product objects (category, item, size, quantity_min, quantity_max, price, discount). *(See previous versions for example JSON)*
-*   **Authentication:**  *(Please confirm if API authentication is required.)*
+Each object in the array represents a product and should have the following properties:
 
-## 2. Central Data Fetching in `src/dataHandler.tsx`:
+| Property       | Type             | Description                                                                 | Required |
+| -------------- | ---------------- | --------------------------------------------------------------------------- | -------- |
+| `category`     | string           | The category of the product.                                                | Yes      |
+| `item`         | string           | The name of the product item.                                               | Yes      |
+| `size`         | string or null   | The size or weight of the product. Can be `null` if size is not applicable. | Yes      |
+| `price`        | number           | The base price of the product for the given size and quantity range.        | Yes      |
+| `quantity_min` | number (optional) | The minimum quantity for which this price is applicable. Defaults to 1 if not provided. | No       |
+| `quantity_max` | number or null (optional) | The maximum quantity for which this price is applicable. Can be `null` for no limit. | No       |
+| `discount`     | number (optional) | A discount applicable for this product entry, represented as a decimal (e.g., 0.1 for 10%). | No       |
+| `prices`       | object (optional) | An object containing prices for different sizes of the same item. This is used when prices vary by size. The keys of this object are size strings, and the values are the corresponding prices. | No       |
 
-*   **Update `getAllProducts()` Function:**  `src/dataHandler.tsx` will be modified to fetch data from the WordPress API. This function becomes the *single point of data fetching* for the application.
+### Example Product Object
 
-    ```typescript
-    // src/dataHandler.tsx
-    import { Product } from './Product';
+```json
+{
+  "category": "Fruits",
+  "item": "Apple",
+  "size": "1kg",
+  "price": 2.50,
+  "quantity_min": 1,
+  "quantity_max": 10,
+  "discount": 0.05
+}
+```
 
-    export const getAllProducts = async (): Promise<Product[]> => {
-      try {
-        const response = await fetch('/wp-json/cclist/v1/products');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error("Error fetching product data from WordPress API:", error);
-        return [];
-      }
-    };
-    ```
+### Example Product Object with Size-Based Pricing
 
-*   **Data Processing Functions (in `src/dataHandler.tsx`):**  `src/dataHandler.tsx` *continues* to provide these functions to process data (no changes needed here):
-    *   `getGroupedProducts(products: Product[])`: Groups products for `Catalog`.
-    *   `getCategories(products: Product[])`: Gets categories for `ProductSelector`.
-    *   `getPrice(productName: string, weightSize: string, qty: number, products: Product[])`: Calculates price.
-    *   `parseSize(sizeString: string | null)`: Parses sizes.
+```json
+{
+  "category": "Beverages",
+  "item": "Juice",
+  "size": null,
+  "price": 5.00,
+  "prices": {
+    "small": 2.50,
+    "medium": 5.00,
+    "large": 7.00
+  }
+}
+```
 
-*   **Remove `products.json`:** Delete `products.json` and remove `import productData from './products.json';` from `src/dataHandler.tsx`.
+## Data Format
 
-## 3. Component Data Flow - Props from `App.tsx`:
+The WordPress REST API should return data in **JSON format**.
 
-*   **`App.tsx` - Fetches and Distributes Data:**
-    *   `App.tsx` is responsible for initiating data fetching by calling `getAllProducts()` from `src/dataHandler.tsx`.
-    *   `App.tsx` *receives* the product data from `dataHandler.tsx`.
-    *   `App.tsx` then *passes* this data as the `products` prop to `Catalog.tsx`, `PricePreview.tsx`, and `ShoppingList.tsx`.
-    *   `App.tsx` also calculates categories and passes them to `ProductSelector.tsx`.
-    *   **Important:** `App.tsx` does *not* directly provide data to `Catalog.tsx` in a fetching sense. It acts as a conduit, passing the data it *receives from `dataHandler.tsx`* down to `Catalog.tsx` and other components via props.
+**Important notes on data format:**
 
-    ```typescript
-    // App.tsx (Example - Data fetching and prop distribution)
-    import { getAllProducts, getPrice as calculatePrice, getCategories } from './dataHandler';
-    import React, { useState, useEffect, useMemo } from 'react';
+*   **Prices as Numbers**: Ensure that all price values (both in the `price` property and within the `prices` object) are provided as **numbers**, not strings. The cclist application uses `parseFloat` to process these values, so using number format is crucial to avoid parsing issues.
 
-    interface AppProps {} // Define AppProps if needed
+## More about the `prices` object
 
-    const App: React.FC<AppProps> = () => {
-      const [products, setProducts] = useState<Product[]>([]);
-      const [categories, setCategories] = useState([]);
-      const [loading, setLoading] = useState(true);
-      const [items, setItems] = useState([]); 
-      const [selectedProduct, setSelectedProduct] = useState('');
-      const [selectedWeight, setSelectedWeight] = useState('');
-      const [quantity, setQuantity] = useState(1);
-      const [showCatalog, setShowCatalog] = useState(false);
-      const selectedProductPricing = useMemo(() => products.filter(p => p.item === selectedProduct), [selectedProduct, products]);
+The optional `prices` object is used to handle products where the price varies depending on the size. For example, a beverage might have different prices for "small", "medium", and "large" sizes.
 
+If a product has size-based pricing, the `prices` object should be included in the product object. The keys of this object should be strings representing the sizes (e.g., "small", "medium", "large", "100g", "2kg"), and the values should be the corresponding prices as numbers.
 
-      useEffect(() => {
-        const fetchData = async () => {
-          setLoading(true);
-          try {
-            const productsFromApi = await getAllProducts();
-            setProducts(productsFromApi);
-            setCategories(getCategories(productsFromApi));
-          } catch (error) {
-            console.error("Error fetching product data:", error);
-          } finally {
-            setLoading(false);
-          }
-        };
-        fetchData();
-      }, []);
+When the `prices` object is used, the main `price` property of the product object might represent a default price or the price for a base size, or it could be less relevant as the actual price is determined by the `prices` object based on the selected size. In the example above for "Juice", the base `price` of 5.00 could be for a "medium" size, while the `prices` object specifies prices for "small", "medium", and "large".
 
-      const addItem = () => {
-        if (!selectedProduct) return;
-        const price = calculatePrice(selectedProduct, selectedWeight, quantity, products);
-        setItems([...items, { product: selectedProduct, weight: selectedWeight, quantity, price }]);
-        setSelectedProduct('');
-        setSelectedWeight('');
-        setQuantity(1);
-      };
-    
-      const removeItem = (index: number) => setItems(items.filter((_, i) => i !== index));
-    
-      const handlePriceClick = (product: string, size: string | null) => {
-        setSelectedProduct(product);
-        setSelectedWeight(size || '');
-        setQuantity(1);
-      };
-    
-      const handleQuantityChange = (index: number, newQuantity: number) => {
-        setItems(prevItems => {
-          const updatedItems = [...prevItems];
-          updatedItems[index] = { ...updatedItems[index], quantity: newQuantity, price: calculatePrice(updatedItems[index].product, updatedItems[index].weight, newQuantity, products) };
-          return updatedItems;
-        });
-      };
+## API Endpoint
 
+The cclist application expects to fetch product data from the following WordPress REST API endpoint:
 
-      return (
-        <div className="bg-bg-main py-6 flex flex-col items-start sm:py-12 px-2 pt-6">
-          <h1 className="text-3xl font-bold text-center w-full mb-4 text-claybrown-main">Ceramics Canada Price Calculator</h1>
-          <div className="relative py-3 sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl w-full mx-auto">
-            <Card className="w-full bg-bg-light border-gray-200 shadow-md">
-              <CardHeader>
-                <div className="flex justify-between items-center w-full">
-                  <CardTitle className="text-claybrown-main">Product Selector</CardTitle>
-                  <button onClick={() => setShowCatalog(true)} className="bg-terracotta-main hover:bg-terracotta-light text-white font-bold py-2 px-4 rounded">
-                    Select from Catalog
-                  </button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                  <ProductSelector categories={categories} selectedProduct={selectedProduct} onProductChange={setSelectedProduct} />
-                  <WeightSelector pricing={selectedProductPricing} selectedWeight={selectedWeight} onWeightChange={setSelectedWeight} hideSelect={selectedProductPricing.length > 0 && !selectedProductPricing[0].size} />
-                  <QuantityInput quantity={quantity} onQuantityChange={setQuantity} />
-                </div>
-                <PricePreview selectedProduct={selectedProduct} selectedWeight={selectedWeight} quantity={quantity} calculatePrice={calculatePrice} products={products}>
-                  <AddItemButton onClick={addItem} />
-                </PricePreview>
-              </CardContent>
-            </Card>
+`/wp-json/cclist/v1/products`
 
-            <Card className="w-full bg-bg-light border-gray-200 shadow-md mt-4">
-              <CardHeader>
-                <CardTitle className="text-claybrown-main">Shopping List</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ShoppingList items={items} onRemoveItem={removeItem} onQuantityChange={handleQuantityChange} calculatePrice={calculatePrice} products={products} />
-              </CardContent>
-            </Card>
+This endpoint should return a JSON array of product objects as described above.
 
-          </div>
-           {showCatalog && <Catalog onClose={() => setShowCatalog(false)} onPriceClick={handlePriceClick} products={products} />}
-        </div>
-      );
-    };
+## Error Handling
 
-    export default App;
+The WordPress REST API should implement proper error handling. In case of errors, the API should return appropriate HTTP status codes and informative error messages in JSON format.
+
+For example:
+
+*   **400 Bad Request**: If the request is malformed or missing required parameters.
+*   **500 Internal Server Error**: If there is an issue on the server side while fetching or processing data.
+
+Error responses should include a JSON body with details about the error, which can be helpful for debugging. For example:
+
+```json
+{
+  "error": "Invalid request parameter",
+  "details": "The 'category' parameter is missing."
+}
+```
+
+## Data Handling in cclist App
+
+The `src/dataHandler.tsx` file in the cclist application is responsible for fetching and processing data from this API endpoint. It defines the `Product` interface and uses the `getAllProducts` function to retrieve data. Ensure that the WordPress REST API response is compatible with this structure for seamless integration.
+
+By adhering to this data structure and the guidelines outlined in this document, the WordPress REST API will successfully provide the necessary product data to the cclist application.
