@@ -73,9 +73,18 @@ export const getAllProducts = async (): Promise<Product[]> => {
   try {
     const response = await fetch('/wp-json/cclist/v1/products');
     if (!response.ok) {
+      const errorData = await response.json();
+      if (errorData && errorData.code && errorData.message) {
+        throw new Error(`WordPress API error (${errorData.code}): ${errorData.message}`);
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     let data = await response.json();
+    // Check for WordPress error structure even if response.ok is true
+    if (Array.isArray(data) && data.length > 0 && data[0].code && data[0].message) {
+      throw new Error(`WordPress API error (${data[0].code}): ${data[0].message}`);
+    }
+
     // Convert prices to numbers in the fetched data
     data = data.map((product: Product) => { // Explicitly type product parameter as Product
       const parsedProduct: Product = { ...product, price: parseFloat(String(product.price)) };
@@ -114,7 +123,7 @@ export const getGroupedProducts = (products: Product[]): GroupedProducts => {
     
     
     const lowestQuantityPrice = acc[product.category][product.item].prices[sizeKey]; // Changed to const - ESLint fix
-    if (!lowestQuantityPrice || price > lowestQuantityPrice) { // Original logic: price > lowestQuantityPrice to find HIGHEST price for lowest quantity
+    if (!lowestQuantityPrice || price < lowestQuantityPrice) { // Corrected logic: price < lowestQuantityPrice to find LOWEST price
         acc[product.category][product.item].prices[sizeKey] = price;
     }
     console.log('getGroupedProducts - groupedProducts:', acc); // ADDED LOGGING
@@ -144,7 +153,7 @@ export const getPrice = (productName: string, weightSize: string, qty: number, p
   if (!applicableEntry) return 0;
 
   // Convert price to a number using parseFloat
-  const productPrice = parseFloat(applicableEntry.price);
+  const productPrice = applicableEntry.price;
   let price = productPrice * qty;
 
   if (isNaN(productPrice)) {
