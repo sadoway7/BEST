@@ -15,7 +15,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
   // Group and sort products by category
   const categorizedProducts = useMemo(() => {
-    const grouped = products.reduce((acc, product) => {
+    const grouped: Record<string, Record<string, Product[]>> = products.reduce((acc, product) => {
       if (!acc[product.category]) {
         acc[product.category] = {};
       }
@@ -27,10 +27,10 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
     }, {} as Record<string, Record<string, Product[]>>);
 
     // Sort items within each category
-    return Object.entries(grouped).reduce((acc, [category, items]) => {
+    return Object.entries(grouped).reduce((acc: Record<string, Record<string, Product[]>>, [category, items]) => {
       acc[category] = Object.entries(items)
         .sort(([itemA], [itemB]) => itemA.localeCompare(itemB))
-        .reduce((itemAcc, [itemName, products]) => {
+        .reduce((itemAcc: Record<string, Product[]>, [itemName, products]) => {
           itemAcc[itemName] = products;
           return itemAcc;
         }, {} as Record<string, Product[]>);
@@ -55,7 +55,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
     const filtered = Object.entries(categorizedProducts)
       .filter(([category]) => !selectedCategory || category === selectedCategory)
-      .reduce((acc, [category, items]) => {
+      .reduce((acc: Record<string, Record<string, Product[]>>, [category, items]) => {
         const filteredItems = Object.entries(items)
           .filter(([itemName, variants]) => 
             itemName.toLowerCase().includes(searchLower) ||
@@ -65,7 +65,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
             )
           )
           .sort(([itemA], [itemB]) => itemA.localeCompare(itemB))
-          .reduce((itemAcc, [itemName, itemProducts]) => {
+          .reduce((itemAcc: Record<string, Product[]>, [itemName, itemProducts]) => {
             itemAcc[itemName] = itemProducts;
             return itemAcc;
           }, {} as Record<string, Product[]>);
@@ -77,13 +77,15 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
       }, {} as Record<string, Record<string, Product[]>>);
 
     // Sort categories in filtered results
-    return Object.entries(filtered)
+    const sortedFiltered = Object.entries(filtered)
       .sort(([catA], [catB]) => catA.localeCompare(catB))
       .reduce((acc, [category, items]) => {
         acc[category] = items;
         return acc;
       }, {} as Record<string, Record<string, Product[]>>);
-  }, [categorizedProducts, searchTerm, selectedCategory]);
+
+    return sortedFiltered;
+  }, [categorizedProducts, searchTerm]);
 
   const toggleItemExpansion = (itemName: string) => {
     setExpandedItems(prev => ({
@@ -104,13 +106,15 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md my-8 flex flex-col max-h-[calc(100vh-4rem)]">
         {/* Search and Categories */}
         <div className="p-4 border-b border-ui-border flex-shrink-0 relative">
-          <button 
-            onClick={onClose} 
-            className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X size={20} className="text-gray-500" />
-          </button>
-          <div className="mb-4">
+          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
+            <button 
+              onClick={onClose} 
+              className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+            >
+              <X size={16} className="text-white" />
+            </button>
+          </div>
+          <div className="relative mb-4">
             <input 
               type="text" 
               placeholder="Search products..." 
@@ -123,20 +127,22 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
             />
             <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           </div>
-          <div className="overflow-x-auto whitespace-nowrap">
-            {categories.map(category => (
-              <button 
-                key={category}
-                onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
-                className={`inline-block px-4 py-2 rounded-lg mr-2 mb-2 cursor-pointer text-sm ${
-                  selectedCategory === category 
-                    ? 'bg-primary-lighter text-primary-main font-medium' 
-                    : 'hover:bg-gray-50'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+          <div className="relative">
+            <select
+              className="block appearance-none w-full bg-white border border-primary-main hover:border-primary-light text-gray-700 py-2.5 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
+              value={selectedCategory || ''}
+              onChange={(e) => setSelectedCategory(e.target.value === '' ? null : e.target.value)}
+            >
+              <option value="">Choose a category</option>
+              {categories.map(category => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <ChevronDown className="h-5 w-5" />
+            </div>
           </div>
         </div>
 
