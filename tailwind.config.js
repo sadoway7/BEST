@@ -27,6 +27,25 @@ export default {
           light: '#ffffff',
           darker: '#f5f2ef',
         },
+        'primary': {
+          main: '#0084FF',
+          light: '#3399FF',
+          lighter: '#E6F3FF',
+        },
+        'status': {
+          admin: '#0084FF',
+          employee: '#6B7280',
+          'super-admin': '#0047AB',
+          'hr-admin': '#00A3B5',
+        },
+        'ui': {
+          border: '#E5E7EB',
+          hover: '#F3F4F6',
+          focus: '#E6F3FF',
+          text: {
+            secondary: '#6B7280',
+          },
+        },
       },
     },
   },

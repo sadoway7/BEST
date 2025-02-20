@@ -65,21 +65,20 @@ const App = () => {
 
 
   return (
-    <div className="bg-bg-main py-6 flex flex-col items-start sm:py-12 px-2 pt-6">
-      <h1 className="text-3xl font-bold text-center w-full mb-4 text-claybrown-main">Ceramics Canada Price Calculator</h1>
+    <div className="bg-gray-50 py-6 flex flex-col items-start sm:py-12 px-4 pt-6">
       <div className="relative py-3 sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl w-full mx-auto">
-        <Card className="w-full bg-bg-light border-gray-200 shadow-md">
+        <Card className="w-full bg-white border-ui-border card-shadow rounded-xl">
           <CardHeader>
             <div className="flex justify-between items-center w-full">
-              <CardTitle className="text-claybrown-main">Product Selector</CardTitle>
-              <button onClick={() => setShowCatalog(true)} className="bg-terracotta-main hover:bg-terracotta-light text-white font-bold py-2 px-4 rounded">
+              <CardTitle className="text-xl font-semibold text-gray-800">Product Selector</CardTitle>
+              <button onClick={() => setShowCatalog(true)} className="bg-primary-main hover:bg-primary-light text-white">
                 Select from Catalog
               </button>
             </div>
           </CardHeader>
           <CardContent>
           {loading ? ( // Display loading message
-              <p>Loading products...</p>
+              <p className="text-ui-text-secondary italic">Loading products...</p>
             ) : (
               <>
                 <div className="flex flex-col sm:flex-row gap-4 mb-4">
@@ -95,9 +94,9 @@ const App = () => {
           </CardContent>
         </Card>
 
-        <Card className="w-full bg-bg-light border-gray-200 shadow-md mt-4">
+        <Card className="w-full bg-white border-ui-border card-shadow rounded-xl mt-6">
           <CardHeader>
-            <CardTitle className="text-claybrown-main">Shopping List</CardTitle>
+            <CardTitle className="text-xl font-semibold text-gray-800">Shopping List</CardTitle>
           </CardHeader>
           <CardContent>
             <ShoppingList items={items} onRemoveItem={removeItem} onQuantityChange={handleQuantityChange} calculatePrice={calculatePrice} products={products} />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Product } from '../dataHandler';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 
 interface CatalogProps {
   onClose: () => void;
@@ -20,9 +20,6 @@ interface GroupedProducts {
 }
 
 const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) => {
-  console.log('Catalog - Component Rendered');
-  console.log('Catalog - products prop:', products);
-
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
     const initialState: Record<string, boolean> = {};
     Object.keys(products.reduce((acc: Record<string, boolean>, product: Product) => {
@@ -35,16 +32,10 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
   });
 
   const toggleSection = (category: string) => {
-    console.log('Catalog - toggleSection called for category:', category);
-    setCollapsedSections(prevState => {
-      console.log('Catalog - Previous collapsedSections:', prevState);
-      const newState = ({
-        ...prevState,
-        [category]: !prevState[category],
-      });
-      console.log('Catalog - New collapsedSections:', newState);
-      return newState;
-    });
+    setCollapsedSections(prevState => ({
+      ...prevState,
+      [category]: !prevState[category],
+    }));
   };
 
   const groupedProducts: GroupedProducts = products.reduce((acc: GroupedProducts, product: Product) => {
@@ -64,76 +55,69 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
     return acc;
   }, {});
 
-  console.log('Catalog - groupedProducts:', groupedProducts);
-  console.log('Catalog - collapsedSections:', collapsedSections);
-
   return (
-    <div className="fixed top-0 left-0 w-full h-screen bg-black bg-opacity-50 flex justify-center items-center overflow-auto">
-      <div className="bg-bg-light p-4 rounded-lg shadow-xl w-full max-w-4xl overflow-y-auto max-h-[80vh]">
-        <h2 className="text-2xl font-bold text-claybrown-main mb-4">Product Catalog</h2>
-        <button onClick={onClose} className="absolute top-2 right-2 px-4 py-2 bg-terracotta-main text-white rounded hover:bg-terracotta-light">Close</button>
-        {Object.entries(groupedProducts).map(([category, products]) => {
-          console.log('Catalog - Rendering category:', category);
-          console.log('Catalog - collapsedSections[category]:', collapsedSections[category]);
-          return (
-            <div key={category} className="mb-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 z-50 
+                    animate-in fade-in duration-200">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-ui-border">
+          <h2 className="text-2xl font-semibold text-gray-800">Product Catalog</h2>
+          <button 
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200
+                     focus:outline-none focus:ring-2 focus:ring-primary-lighter"
+          >
+            <X size={24} className="text-gray-500" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 p-6">
+          {Object.entries(groupedProducts).map(([category, products]) => (
+            <div key={category} className="mb-6 rounded-lg border border-ui-border overflow-hidden">
               <div
-                className="flex items-center justify-between bg-warmbeige-light text-black p-2  cursor-pointer"
+                className="flex items-center justify-between bg-gray-50 p-4 cursor-pointer
+                         hover:bg-gray-100 transition-colors duration-200"
                 onClick={() => toggleSection(category)}
               >
-                <h3 className="font-bold">{category}</h3>
-                {collapsedSections[category] ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
+                <h3 className="text-lg font-medium text-gray-800">{category}</h3>
+                <div className="text-gray-500 transition-transform duration-200">
+                  {collapsedSections[category] ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
+                </div>
               </div>
+
               {!collapsedSections[category] && (
-                (() => {
-                  console.log('Catalog - Category expanded:', category);
-                  console.log('Catalog - Items in expanded category:', products);
-                  return (
-                    <ul className="mt-2">
-                      {Object.entries(products).map(([itemName, product]) => {
-                        console.log('Catalog - Item Prices:', product.prices); // ADDED LOGGING - Before the return
-                        return (
-                          <li key={itemName} className="py-2 border-b border-gray-200">
-                            <div className="flex justify-between items-center py-1">
-                              <span className=" ">{product.item}</span>
-                              <div className="flex space-x-4">
-                                {Object.entries(product.prices).map(([size, price]) => {
-                                  console.log('Catalog - Price Button - size:', size, 'price:', price); // ADDED LOGGING - Before the return
-                                  return (
-                                    <button
-                                      key={size}
-                                      className="px-4 py-2 bg-bg-light hover:bg-warmbeige-light text-black text-sm"
-                                      onClick={() => {
-                                        onPriceClick(product.item, size === 'null' ? null : size);
-                                        onClose();
-                                      }}
-                                    >
-                                      ${(() => `${price?.toFixed(2) ?? 'N/A'}`)()}
-                                    </button>
-                                  );
-                                })}
-                              </div>
+                <div className="divide-y divide-ui-border">
+                  {Object.entries(products).map(([itemName, product]) => (
+                    <div key={itemName} className="p-4 hover:bg-gray-50 transition-colors duration-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <span className="font-medium text-gray-800">{product.item}</span>
+                        <div className="flex flex-wrap gap-2 justify-end">
+                          {Object.entries(product.prices).map(([size, price]) => (
+                            <div key={size} className="flex flex-col items-center">
+                              <button
+                                className="px-4 py-2 bg-primary-lighter text-primary-main font-medium rounded-lg
+                                         hover:bg-primary-main hover:text-white transition-colors duration-200
+                                         focus:outline-none focus:ring-2 focus:ring-primary-lighter"
+                                onClick={() => {
+                                  onPriceClick(product.item, size === 'null' ? null : size);
+                                  onClose();
+                                }}
+                              >
+                                ${price?.toFixed(2) ?? 'N/A'}
+                              </button>
+                              <span className="text-xs text-ui-text-secondary mt-1">
+                                {size === 'null' ? 'Default' : size}
+                              </span>
                             </div>
-                            <div className="flex justify-end space-x-4 mt-0.5">
-                              {Object.keys(product.prices).map((size) => {
-                                console.log('Catalog - Size Banner - size:', size); // ADDED LOGGING - Before the return
-                                return (
-                                  <span key={size} className="text-xs text-gray-500">
-                                    {size === 'null' ? 'Price' : size}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  );
-                })()
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );

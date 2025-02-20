@@ -1,3 +1,7 @@
+import { dummyProducts } from './dummyData';
+
+const USE_DUMMY_DATA = true; // Toggle this to switch between dummy and real data
+
 export interface Product {
   category: string;
   item: string;
@@ -70,6 +74,11 @@ export const parseSize = (sizeString: string | null): number => {
 }
 
 export const getAllProducts = async (): Promise<Product[]> => {
+  // Return dummy data if USE_DUMMY_DATA is true
+  if (USE_DUMMY_DATA) {
+    return dummyProducts;
+  }
+
   try {
     const response = await fetch('/wp-json/cclist/v1/products');
     if (!response.ok) {
