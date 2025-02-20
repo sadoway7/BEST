@@ -7,6 +7,7 @@ import AddItemButton from './components/AddItemButton';
 import ShoppingList from './components/ShoppingList';
 import PricePreview from './components/PricePreview';
 import Catalog from './components/Catalog';
+import MobCatalog from './components/MobCatalog';
 import { getAllProducts, getPrice as calculatePrice, getCategories } from './dataHandler';
 import { Product } from './dataHandler';
 
@@ -20,6 +21,16 @@ const App = () => {
   const [quantity, setQuantity] = useState(1);
   const [showCatalog, setShowCatalog] = useState(false);
   const selectedProductPricing = useMemo(() => products.filter(p => p.item === selectedProduct), [selectedProduct, products]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // Example breakpoint
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,7 +114,11 @@ const App = () => {
         </Card>
 
       </div>
-       {showCatalog && <Catalog onClose={() => setShowCatalog(false)} onPriceClick={handlePriceClick} products={products} />}
+       {showCatalog && (isMobile ? (
+          <MobCatalog onClose={() => setShowCatalog(false)} onPriceClick={handlePriceClick} products={products} />
+        ) : (
+          <Catalog onClose={() => setShowCatalog(false)} onPriceClick={handlePriceClick} products={products} />
+        ))}
     </div>
   );
 };
