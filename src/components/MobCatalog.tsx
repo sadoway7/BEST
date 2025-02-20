@@ -55,7 +55,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
     const filtered = Object.entries(categorizedProducts)
       .filter(([category]) => !selectedCategory || category === selectedCategory)
-      .reduce((acc: Record<string, Record<string, Product[]>>, [category, items]) => {
+      .reduce((acc, [category, items]) => {
         const filteredItems = Object.entries(items)
           .filter(([itemName, variants]) => 
             itemName.toLowerCase().includes(searchLower) ||
@@ -77,12 +77,14 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
       }, {} as Record<string, Record<string, Product[]>>);
 
     // Sort categories in filtered results
-    return Object.entries(filtered)
+    const sortedFiltered = Object.entries(filtered)
       .sort(([catA], [catB]) => catA.localeCompare(catB))
       .reduce((acc, [category, items]) => {
         acc[category] = items;
         return acc;
       }, {} as Record<string, Record<string, Product[]>>);
+
+    return sortedFiltered;
   }, [categorizedProducts, searchTerm]);
 
   const toggleItemExpansion = (itemName: string) => {
@@ -107,9 +109,9 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
             <button 
               onClick={onClose} 
-              className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="bg-gray-300 border border-gray-300 hover:bg-gray-400 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
             >
-              <X size={20} className="text-white" />
+              <X size={20} className="text-gray-700" />
             </button>
           </div>
           <div className="relative mb-4">
@@ -118,6 +120,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
               placeholder="Search products..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              enterKeyHint="search"
               className="w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 rounded-lg
                        shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:border-primary-light
                        focus:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow duration-200
