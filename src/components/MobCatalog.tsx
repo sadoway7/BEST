@@ -176,7 +176,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
                     {expandedItems[itemName] && (
                       <div className="border-t border-ui-border divide-y divide-ui-border">
-                        {variants.map((product) => (
+                        {variants.map((product: Product) => (
                           <div 
                             key={`${product.size || 'default'}`}
                             onClick={() => {
