@@ -43,45 +43,47 @@ button {
 /* Scrollbar Styling */
 /* WebKit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
+  width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f2ef; /* Color of the track (background) */
+  @apply bg-gray-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #a66643; /* Use claybrown-light for better contrast */
-  border-radius: 4px; /* Rounded corners */
+  @apply bg-gray-300 rounded;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8b4513; /* Use claybrown-main for hover */
+  @apply bg-gray-400;
 }
 
 /* Firefox */
 html {
-  scrollbar-width: thin; /* 'thin' or 'auto' or 'none' */
-  scrollbar-color: #a66643 #f5f2ef; /* thumb and track color */
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.gray.300') theme('colors.gray.100');
 }
 
 /* Target specific scrollable areas */
 .scrollable {
-    scrollbar-width: thin;
-    scrollbar-color: #a66643 #f5f2ef;
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.gray.300') theme('colors.gray.100');
 }
+
 .scrollable::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  width: 8px;
+  height: 8px;
 }
+
 .scrollable::-webkit-scrollbar-track {
-    background: #f5f2ef;
+  @apply bg-gray-100;
 }
+
 .scrollable::-webkit-scrollbar-thumb {
-    background: #a66643;
-    border-radius: 4px;
+  @apply bg-gray-300 rounded;
 }
+
 .scrollable::-webkit-scrollbar-thumb:hover {
-    background: #8b4513;
+  @apply bg-gray-400;
 }

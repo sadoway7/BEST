@@ -10,7 +10,7 @@ interface CatalogProps {
 
 const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Group products by category
@@ -36,12 +36,21 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
   // Filter products based on search
   const filteredProducts = useMemo(() => {
     const searchLower = searchTerm.toLowerCase();
+    
+    // Reset category selection when searching
+    if (searchTerm) {
+      setSelectedCategory(null);
+    }
+
     return Object.entries(categorizedProducts)
-      .filter(([category]) => !selectedCategory || category === selectedCategory)
       .reduce((acc, [category, items]) => {
         const filteredItems = Object.entries(items)
-          .filter(([itemName]) => 
-            itemName.toLowerCase().includes(searchLower)
+          .filter(([itemName, variants]) => 
+            itemName.toLowerCase().includes(searchLower) ||
+            variants.some(variant => 
+              (variant.size?.toLowerCase().includes(searchLower)) ||
+              variant.price.toString().includes(searchLower)
+            )
           )
           .reduce((itemAcc, [itemName, itemProducts]) => {
             itemAcc[itemName] = itemProducts;
@@ -53,7 +62,21 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
         }
         return acc;
       }, {} as Record<string, Record<string, Product[]>>);
-  }, [categorizedProducts, searchTerm, selectedCategory]);
+  }, [categorizedProducts, searchTerm]);
+
+  const toggleItemExpansion = (itemName: string) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [itemName]: !prev[itemName]
+    }));
+  };
+
+  // Helper function to format price break display
+  const formatPriceBreak = (product: Product) => {
+    const minQty = product.quantity_min ?? 1;
+    const maxQty = product.quantity_max ?? '+';
+    return `${minQty}-${maxQty}`;
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start p-4 z-50 overflow-y-auto">
@@ -127,14 +150,14 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                       className="border border-ui-border rounded-lg overflow-hidden"
                     >
                       <div 
-                        onClick={() => setExpandedItem(expandedItem === itemName ? null : itemName)}
+                        onClick={() => toggleItemExpansion(itemName)}
                         className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50"
                       >
-                        <span className="font-medium text-gray-900">{itemName}</span>
-                        {expandedItem === itemName ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                        <span className="text-[0.92em] font-medium text-gray-900">{itemName}</span>
+                        {expandedItems[itemName] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                       </div>
 
-                      {expandedItem === itemName && (
+                      {expandedItems[itemName] && (
                         <div className="border-t border-ui-border divide-y divide-ui-border">
                           {variants.map((product) => (
                             <div 
@@ -149,21 +172,14 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                                 <div className="text-gray-800">
                                   {product.size || 'Standard'}
                                 </div>
-                                {product.quantity_min && product.quantity_min > 1 && (
-                                  <div className="text-sm text-gray-500">
-                                    Min qty: {product.quantity_min}
-                                  </div>
-                                )}
                               </div>
                               <div className="text-right">
                                 <div className="text-primary-main">
                                   ${product.price.toFixed(2)}
                                 </div>
-                                {product.quantity_max && (
-                                  <div className="text-sm text-gray-500">
-                                    Max: {product.quantity_max}
-                                  </div>
-                                )}
+                                <div className="text-sm text-gray-500">
+                                  {formatPriceBreak(product)}
+                                </div>
                               </div>
                             </div>
                           ))}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Plus, Minus } from 'lucide-react';
 
 interface QuantityInputProps {
   quantity: number;
@@ -9,12 +10,28 @@ const QuantityInput: React.FC<QuantityInputProps> = ({
   quantity,
   onQuantityChange,
 }) => {
+  const handleIncrement = () => {
+    onQuantityChange(quantity + 1);
+  };
+
+  const handleDecrement = () => {
+    onQuantityChange(Math.max(1, quantity - 1));
+  };
+
   return (
     <div className="w-full sm:w-1/3">
       <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1.5">
         Quantity
       </label>
-      <div className="relative">
+      <div className="relative flex items-center">
+        <button
+          type="button"
+          onClick={handleDecrement}
+          className="absolute left-0 h-full px-3 flex items-center justify-center text-gray-500 
+                   hover:text-primary-main transition-colors"
+        >
+          <Minus size={16} />
+        </button>
         <input
           type="number"
           id="quantity"
@@ -24,18 +41,20 @@ const QuantityInput: React.FC<QuantityInputProps> = ({
             onQuantityChange(isNaN(value) ? 1 : Math.max(1, value));
           }}
           min="1"
-          className="mt-1 block w-full pl-4 pr-10 py-2.5 text-base border border-ui-border bg-white text-gray-800 
+          className="block w-full px-10 py-2.5 text-base border border-ui-border bg-white text-gray-800 
                    focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-primary-main 
                    hover:border-gray-400 transition-colors duration-200
-                   sm:text-sm rounded-lg shadow-sm"
+                   sm:text-sm rounded-lg shadow-sm text-center"
           placeholder="Enter quantity"
         />
-        <div className="absolute inset-y-0 right-0 flex items-center px-3 mt-1 pointer-events-none">
-          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16" />
-          </svg>
-        </div>
+        <button
+          type="button"
+          onClick={handleIncrement}
+          className="absolute right-0 h-full px-3 flex items-center justify-center text-gray-500 
+                   hover:text-primary-main transition-colors"
+        >
+          <Plus size={16} />
+        </button>
       </div>
     </div>
   );
