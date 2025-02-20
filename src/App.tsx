@@ -21,7 +21,6 @@ const App = () => {
   const [showCatalog, setShowCatalog] = useState(false);
   const selectedProductPricing = useMemo(() => products.filter(p => p.item === selectedProduct), [selectedProduct, products]);
 
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true); // Set loading to true when fetching starts
@@ -65,12 +64,12 @@ const App = () => {
 
 
   return (
-    <div className="bg-gray-50 py-6 flex flex-col items-start sm:py-12 px-4 pt-6">
+    <div className="bg-gray-50 flex flex-col items-start sm:py-12 px-4 pt-0">
       <div className="relative py-3 sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl w-full mx-auto">
         <Card className="w-full bg-white border-ui-border card-shadow rounded-xl">
           <CardHeader>
             <div className="flex justify-between items-center w-full">
-              <CardTitle className="text-xl font-semibold text-gray-800">Product Selector</CardTitle>
+              <CardTitle className="text-xl font-semibold text-gray-800">Ceramics Canada Catalogue</CardTitle>
               <button onClick={() => setShowCatalog(true)} className="bg-primary-main hover:bg-primary-light text-white">
                 Select from Catalog
               </button>

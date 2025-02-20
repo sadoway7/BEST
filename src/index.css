@@ -40,6 +40,10 @@ button {
   @apply shadow-[0_2px_8px_rgba(0,0,0,0.08)];
 }
 
+.shadow-sm-blue {
+  @apply shadow-[0_1px_3px_rgba(0,132,255,0.15)];
+}
+
 /* Scrollbar Styling */
 /* WebKit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {

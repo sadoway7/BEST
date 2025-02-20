@@ -13,9 +13,9 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Group products by category
+  // Group and sort products by category
   const categorizedProducts = useMemo(() => {
-    return products.reduce((acc, product) => {
+    const grouped = products.reduce((acc, product) => {
       if (!acc[product.category]) {
         acc[product.category] = {};
       }
@@ -25,15 +25,26 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
       acc[product.category][product.item].push(product);
       return acc;
     }, {} as Record<string, Record<string, Product[]>>);
+
+    // Sort items within each category
+    return Object.entries(grouped).reduce((acc, [category, items]) => {
+      acc[category] = Object.entries(items)
+        .sort(([itemA], [itemB]) => itemA.localeCompare(itemB))
+        .reduce((itemAcc, [itemName, products]) => {
+          itemAcc[itemName] = products;
+          return itemAcc;
+        }, {} as Record<string, Product[]>);
+      return acc;
+    }, {} as Record<string, Record<string, Product[]>>);
   }, [products]);
 
-  // Get unique categories
+  // Get sorted categories
   const categories = useMemo(() => 
     Object.keys(categorizedProducts).sort(), 
     [categorizedProducts]
   );
 
-  // Filter products based on search
+  // Filter and sort products based on search
   const filteredProducts = useMemo(() => {
     const searchLower = searchTerm.toLowerCase();
     
@@ -42,7 +53,8 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
       setSelectedCategory(null);
     }
 
-    return Object.entries(categorizedProducts)
+    const filtered = Object.entries(categorizedProducts)
+      .filter(([category]) => !selectedCategory || category === selectedCategory)
       .reduce((acc, [category, items]) => {
         const filteredItems = Object.entries(items)
           .filter(([itemName, variants]) => 
@@ -52,6 +64,7 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
               variant.price.toString().includes(searchLower)
             )
           )
+          .sort(([itemA], [itemB]) => itemA.localeCompare(itemB))
           .reduce((itemAcc, [itemName, itemProducts]) => {
             itemAcc[itemName] = itemProducts;
             return itemAcc;
@@ -62,7 +75,15 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
         }
         return acc;
       }, {} as Record<string, Record<string, Product[]>>);
-  }, [categorizedProducts, searchTerm]);
+
+    // Sort categories in filtered results
+    return Object.entries(filtered)
+      .sort(([catA], [catB]) => catA.localeCompare(catB))
+      .reduce((acc, [category, items]) => {
+        acc[category] = items;
+        return acc;
+      }, {} as Record<string, Record<string, Product[]>>);
+  }, [categorizedProducts, searchTerm, selectedCategory]);
 
   const toggleItemExpansion = (itemName: string) => {
     setExpandedItems(prev => ({
@@ -90,10 +111,10 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                 placeholder="Search products..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-ui-border rounded-lg bg-white
-                         shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]
+                className="w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 rounded-lg
+                         shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:border-primary-light
                          focus:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow duration-200
-                         focus:outline-none focus:ring-2 focus:ring-primary-lighter focus:border-primary-main"
+                         focus:outline-none focus:ring-2 focus:ring-primary-lighter focus:border-primary-main shadow-sm-blue"
               />
               <Search className="absolute left-3 top-3 text-gray-400" size={20} />
             </div>
@@ -105,7 +126,7 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                 onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
                 className={`px-4 py-2 cursor-pointer ${
                   selectedCategory === category 
-                    ? 'bg-primary-lighter text-primary-main' 
+                    ? 'bg-primary-lighter text-primary-main font-medium' 
                     : 'hover:bg-gray-50'
                 }`}
               >

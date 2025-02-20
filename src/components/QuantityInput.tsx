@@ -44,7 +44,7 @@ const QuantityInput: React.FC<QuantityInputProps> = ({
           className="block w-full px-10 py-2.5 text-base border border-ui-border bg-white text-gray-800 
                    focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-primary-main 
                    hover:border-gray-400 transition-colors duration-200
-                   sm:text-sm rounded-lg shadow-sm text-center"
+                   sm:text-sm rounded-lg shadow-sm text-center appearance-none"
           placeholder="Enter quantity"
         />
         <button
