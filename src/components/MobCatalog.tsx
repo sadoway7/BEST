@@ -95,8 +95,12 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
     }));
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (searchInputRef.current) {
       searchInputRef.current.blur();
     }
@@ -117,17 +121,17 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
             <button 
               onClick={onClose} 
-              className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10  flex items-center justify-center transition-colors"
+              className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
             >
-              <X size={0} className="text-white" />
+              <X size={20} className="text-white" />
             </button>
           </div>
-          <div className="relative mb-4">
+          <form onSubmit={handleSearchSubmit} className="relative mb-4">
             <input 
               type="text" 
               placeholder="Search products..." 
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={handleSearchChange}
               ref={searchInputRef}
               enterKeyHint="search"
               className="w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 rounded-lg
@@ -136,7 +140,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
                        focus:outline-none focus:ring-2 focus:ring-primary-lighter focus:border-primary-main shadow-sm-blue"
             />
             <Search className="absolute left-3 top-3 text-gray-400" size={20} />
-          </div>
+          </form>
           <div className="relative">
             <select
               className="block appearance-none w-full bg-white border border-primary-main hover:border-primary-light text-gray-700 py-2.5 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
