@@ -123,7 +123,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
               onClick={onClose} 
               className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
             >
-              <X size={20} className="text-white" />
+              <X size={0} className="text-white" />
             </button>
           </div>
           <form onSubmit={handleSearchSubmit} className="relative mb-4">
