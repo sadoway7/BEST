@@ -83,7 +83,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
         acc[category] = items;
         return acc;
       }, {} as Record<string, Record<string, Product[]>>);
-  }, [categorizedProducts, searchTerm, selectedCategory]);
+  }, [categorizedProducts, searchTerm]);
 
   const toggleItemExpansion = (itemName: string) => {
     setExpandedItems(prev => ({
@@ -107,9 +107,9 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
             <button 
               onClick={onClose} 
-              className="bg-gray-300 border border-gray-300 hover:bg-gray-400 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
             >
-              <X size={20} className="text-gray-700" />
+              <X size={20} className="text-white" />
             </button>
           </div>
           <div className="relative mb-4">
@@ -118,16 +118,16 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
               placeholder="Search products..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 text-lg border border-primary-main bg-white text-gray-800 rounded-lg
+              className="w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 rounded-lg
                        shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:border-primary-light
                        focus:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow duration-200
                        focus:outline-none focus:ring-2 focus:ring-primary-lighter focus:border-primary-main shadow-sm-blue"
             />
-            <Search className="absolute left-3 top-3 text-gray-400" size={24} />
+            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           </div>
           <div className="relative">
             <select
-              className="block appearance-none w-full bg-white border border-primary-main hover:border-primary-light text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline text-lg"
+              className="block appearance-none w-full bg-white border border-primary-main hover:border-primary-light text-gray-700 py-2.5 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
               value={selectedCategory || ''}
               onChange={(e) => setSelectedCategory(e.target.value === '' ? null : e.target.value)}
             >
@@ -139,7 +139,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
               ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <ChevronDown className="h-6 w-6" />
+              <ChevronDown className="h-5 w-5" />
             </div>
           </div>
         </div>
@@ -147,13 +147,13 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
         {/* Product List */}
         <div className="flex-1 flex flex-col min-h-full">
           <div className="flex justify-between items-center p-4 border-b border-ui-border flex-shrink-0">
-            <h2 className="text-xl font-medium">
+            <h2 className="text-lg font-medium">
               {selectedCategory || 'All Products'}
             </h2>
           </div>
 
           <div className="overflow-y-auto flex-1 p-4">
-            <div className="text-base text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
+            <div className="text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
               Click on a product to view sizes and prices. Select a variant to add it to your calculation.
             </div>
 
@@ -168,8 +168,8 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
                       onClick={() => toggleItemExpansion(itemName)}
                       className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50"
                     >
-                      <span className="text-lg font-medium text-gray-900">{itemName}</span>
-                      {expandedItems[itemName] ? <ChevronDown size={24} /> : <ChevronRight size={24} />}
+                      <span className="text-[0.92em] font-medium text-gray-900">{itemName}</span>
+                      {expandedItems[itemName] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                     </div>
 
                     {expandedItems[itemName] && (
@@ -184,12 +184,12 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
                             className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer transition-colors"
                           >
                             <div className="flex-1">
-                              <div className="text-lg text-gray-800">
+                              <div className="text-gray-800">
                                 {product.size || 'Standard'}
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-primary-main text-lg font-semibold">
+                              <div className="text-primary-main">
                                 ${product.price.toFixed(2)}
                               </div>
                               <div className="text-sm text-gray-500">
