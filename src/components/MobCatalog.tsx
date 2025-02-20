@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Product } from '../dataHandler';
 import { ChevronRight, ChevronDown, X, Search } from 'lucide-react';
 
@@ -11,6 +11,7 @@ interface CatalogProps {
 const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Group and sort products by category
@@ -94,6 +95,13 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
     }));
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    if (searchInputRef.current) {
+      searchInputRef.current.blur();
+    }
+  };
+
   // Helper function to format price break display
   const formatPriceBreak = (product: Product) => {
     const minQty = product.quantity_min ?? 1;
@@ -109,9 +117,9 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
             <button 
               onClick={onClose} 
-              className="bg-gray-300 border border-gray-300 hover:bg-gray-400 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10  flex items-center justify-center transition-colors"
             >
-              <X size={20} className="text-gray-700" />
+              <X size={0} className="text-white" />
             </button>
           </div>
           <div className="relative mb-4">
@@ -119,7 +127,8 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
               type="text" 
               placeholder="Search products..." 
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearch}
+              ref={searchInputRef}
               enterKeyHint="search"
               className="w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 rounded-lg
                        shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:border-primary-light
