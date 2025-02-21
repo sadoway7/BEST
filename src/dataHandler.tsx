@@ -1,6 +1,6 @@
 import { dummyProducts } from './dummyData';
 
-const USE_DUMMY_DATA = false; // Toggle this to switch between dummy and real data
+const USE_DUMMY_DATA = true; // Toggle this to switch between dummy and real data
 
 export interface Product {
   category: string;
