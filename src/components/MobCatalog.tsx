@@ -134,16 +134,16 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
               onChange={handleSearchChange}
               ref={searchInputRef}
               enterKeyHint="search"
-              className="w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 rounded-lg
+              className="w-full pl-10 pr-4 py-2.5 text-base  bg-white text-gray-800 rounded-lg font-semibold
                        shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:border-primary-light
                        focus:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow duration-200
-                       focus:outline-none focus:ring-2 focus:ring-primary-lighter focus:border-primary-main shadow-sm-blue"
+                       focus:outline-none"
             />
             <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           </form>
           <div className="relative">
             <select
-              className="block appearance-none w-full bg-white border border-primary-main hover:border-primary-light text-gray-700 py-2.5 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
+              className="block appearance-none w-full bg-gray-100  hover:border-primary-light text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
               value={selectedCategory || ''}
               onChange={(e) => setSelectedCategory(e.target.value === '' ? null : e.target.value)}
             >
