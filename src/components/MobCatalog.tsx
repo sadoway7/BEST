@@ -114,8 +114,8 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md my-8 flex flex-col max-h-[calc(100vh-4rem)] overflow-x-hidden">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md my-0 flex flex-col max-h-[calc(100vh-0rem)] overflow-x-hidden">
         {/* Search and Categories */}
         <div className="p-4 border-b border-ui-border flex-shrink-0 relative">
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
@@ -163,7 +163,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
         {/* Product List */}
         <div className="flex-1 flex flex-col min-h-full">
           <div className="flex justify-between items-center p-4 border-b border-ui-border flex-shrink-0">
-            <h2 className="text-lg font-medium">
+            <h2 className="text-xl font-medium">
               {selectedCategory || 'All Products'}
             </h2>
           </div>
@@ -184,7 +184,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
                       onClick={() => toggleItemExpansion(itemName)}
                       className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50"
                     >
-                      <span className="text-[0.92em] font-medium text-gray-900">{itemName}</span>
+                      <span className="text-base font-medium text-gray-900">{itemName}</span>
                       {expandedItems[itemName] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                     </div>
 
@@ -200,12 +200,12 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
                             className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer transition-colors"
                           >
                             <div className="flex-1">
-                              <div className="text-gray-800">
+                              <div className="text-base text-gray-800">
                                 {product.size || 'Standard'}
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-primary-main">
+                              <div className="text-lg text-primary-main">
                                 ${product.price.toFixed(2)}
                               </div>
                               <div className="text-sm text-gray-500">
