@@ -115,12 +115,12 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md my-0 flex flex-col max-h-[calc(100vh-0rem)] overflow-x-hidden">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md my-0 flex flex-col overflow-x-hidden">
         {/* Search and Categories */}
         <div className="p-4 border-b border-ui-border flex-shrink-0 relative">
-          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
-            <button 
-              onClick={onClose} 
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
               className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
             >
               <X size={0} className="text-white" />

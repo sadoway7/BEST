@@ -75,7 +75,7 @@ export const parseSize = (sizeString: string | null): number => {
 
 export const getAllProducts = async (): Promise<Product[]> => {
   // Clear localStorage before fetching
-  localStorage.clear();
+  // localStorage.clear(); // Removed to prevent clearing local storage on every fetch
 
   // Return dummy data if USE_DUMMY_DATA is true
   if (USE_DUMMY_DATA) {
