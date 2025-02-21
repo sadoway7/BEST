@@ -107,14 +107,14 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
           <div className="p-4 border-b border-ui-border flex-shrink-0">
             <div className="relative">
               <input 
-                type="text" 
-                placeholder="Search products..." 
+                type="text"
+                placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 rounded-lg
-                         shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:border-primary-light
-                         focus:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow duration-200
-                         focus:outline-none focus:ring-2 focus:ring-primary-lighter focus:border-primary-main shadow-sm-blue"
+                className="w-full pl-10 pr-4 py-2.5 text-base bg-white text-gray-800 rounded-lg font-semibold
+                         shadow-[0_2px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)]
+                         focus:shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-shadow duration-200
+                         focus:outline-none"
               />
               <Search className="absolute left-3 top-3 text-gray-400" size={20} />
             </div>
@@ -142,11 +142,11 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
             <h2 className="text-lg font-medium">
               {selectedCategory || 'All Products'}
             </h2>
-            <button 
-              onClick={onClose} 
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            <button
+              onClick={onClose}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 hover:scale-110 p-2 shadow-md hover:shadow-lg"
             >
-              <X size={20} className="text-gray-500" />
+              <X size={16} className="text-gray-600" />
             </button>
           </div>
 
@@ -167,43 +167,61 @@ const Catalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products }) =>
                 <div className="space-y-2">
                   {Object.entries(items).map(([itemName, variants]) => (
                     <div 
-                      key={itemName} 
-                      className="border border-ui-border rounded-lg overflow-hidden"
+                      key={itemName}
+                      className="rounded-lg overflow-hidden mb-2 shadow-md"
                     >
-                      <div 
+                      <div
                         onClick={() => toggleItemExpansion(itemName)}
-                        className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50"
+                        className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-200 transition-colors bg-gray-200"
                       >
-                        <span className="text-[0.92em] font-medium text-gray-900">{itemName}</span>
+                        <span className="text-lg font-bold text-gray-900">{itemName}</span>
                         {expandedItems[itemName] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                       </div>
 
                       {expandedItems[itemName] && (
-                        <div className="border-t border-ui-border divide-y divide-ui-border">
-                          {variants.map((product) => (
-                            <div 
-                              key={`${product.size || 'default'}`}
-                              onClick={() => {
-                                onPriceClick(itemName, product.size);
-                                onClose();
-                              }}
-                              className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer transition-colors"
-                            >
-                              <div className="flex-1">
-                                <div className="text-gray-800">
-                                  {product.size || 'Standard'}
+                        <div className="divide-y divide-gray-300 bg-white">
+                          {(() => {
+                            const uniqueSizes = new Map<string, Product[]>();
+                            variants.forEach(product => {
+                              const sizeKey = product.size || 'Standard';
+                              if (!uniqueSizes.has(sizeKey)) {
+                                uniqueSizes.set(sizeKey, []);
+                              }
+                              uniqueSizes.get(sizeKey)!.push(product);
+                            });
+
+                            return Array.from(uniqueSizes.entries()).map(([size, sizeVariants]) => {
+                              const sortedVariants = sizeVariants.sort((a, b) => a.price - b.price);
+                              return (
+                                <div
+                                  key={size}
+                                  onClick={() => {
+                                    onPriceClick(itemName, size);
+                                    onClose();
+                                  }}
+                                  className="px-4 py-3 flex justify-between items-center hover:bg-gray-100 cursor-pointer transition-colors"
+                                >
+                                  <div className="flex-1 flex items-center">
+                                    <div className="text-base font-semibold text-gray-800 mr-4">
+                                      {size}
+                                    </div>
+                                    <div className="text-right flex-grow grid grid-flow-col gap-8 justify-end">
+                                      {sortedVariants.map((product, index) => (
+                                        <div key={index} className="flex flex-col items-center">
+                                          <div className="text-lg text-black font-bold">
+                                            ${product.price.toFixed(2)}
+                                          </div>
+                                          <div className="text-sm text-gray-500">
+                                            {formatPriceBreak(product)}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-primary-main">
-                                  ${product.price.toFixed(2)}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {formatPriceBreak(product)}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                              );
+                            });
+                          })()}
                         </div>
                       )}
                     </div>

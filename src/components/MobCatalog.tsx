@@ -118,15 +118,15 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
       <div className="bg-gray-50 rounded-xl shadow-xl w-full max-w-md my-0 flex flex-col overflow-x-hidden">
         {/* Search and Categories */}
         <div className="p-4 flex-shrink-0 relative">
-          <div className="flex justify-end">
+          <div className="flex justify-end mb-4">
             <button
               onClick={onClose}
-              className="bg-red-500 border border-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 hover:scale-110 p-2 shadow-md hover:shadow-lg"
             >
-              <X size={0} className="text-white" />
+              <X size={16} className="text-gray-600" />
             </button>
           </div>
-          <form onSubmit={handleSearchSubmit} className="relative mb-4">
+          <form onSubmit={handleSearchSubmit} className="relative">
             <input 
               type="text" 
               placeholder="Search products..." 
@@ -134,38 +134,35 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
               onChange={handleSearchChange}
               ref={searchInputRef}
               enterKeyHint="search"
-              className="w-full pl-10 pr-4 py-2.5 text-base  bg-white text-gray-800 rounded-lg font-semibold
-                       shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:border-primary-light
-                       focus:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow duration-200
-                       focus:outline-none"
+              className="w-full pl-10 pr-4 py-2.5 text-base bg-white text-gray-800 rounded-lg font-semibold
+                        shadow-[0_2px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)]
+                        focus:shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-shadow duration-200
+                        focus:outline-none"
             />
             <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           </form>
-          <div className="relative">
-            <select
-              className="block appearance-none w-full bg-gray-100  hover:border-primary-light text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
-              value={selectedCategory || ''}
-              onChange={(e) => setSelectedCategory(e.target.value === '' ? null : e.target.value)}
-            >
-              <option value="">Choose a category</option>
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <ChevronDown className="h-5 w-5" />
-            </div>
-          </div>
         </div>
 
         {/* Product List */}
         <div className="flex-1 flex flex-col min-h-full">
           <div className="flex justify-between items-center p-4 border-b border-ui-border flex-shrink-0 bg-gray-100">
-            <h2 className="text-xl font-semibold">
-              {selectedCategory || 'All Products'}
-            </h2>
+            <div className="relative w-full">
+              <select
+                className="block appearance-none w-full bg-gray-100 text-gray-800 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline text-lg font-semibold"
+                value={selectedCategory || ''}
+                onChange={(e) => setSelectedCategory(e.target.value === '' ? null : e.target.value)}
+              >
+                <option value="">Choose a category</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <ChevronDown className="h-5 w-5" />
+              </div>
+            </div>
           </div>
 
           <div className="overflow-y-auto flex-1 p-4">
@@ -190,30 +187,48 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
                     {expandedItems[itemName] && (
                       <div className=" divide-y divide-gray-300 bg-white">
-                        {variants.map((product: Product) => (
-                          <div
-                            key={`${product.size || 'default'}`}
-                            onClick={() => {
-                              onPriceClick(itemName, product.size);
-                              onClose();
-                            }}
-                            className="px-4 py-3 flex justify-between items-center hover:bg-gray-100 cursor-pointer transition-colors"
-                          >
-                            <div className="flex-1">
-                              <div className="text-base font-semibold text-gray-800">
-                                {product.size || 'Standard'}
+                        {(() => {
+                          const uniqueSizes = new Map<string, Product[]>();
+                          variants.forEach(product => {
+                            const sizeKey = product.size || 'Standard';
+                            if (!uniqueSizes.has(sizeKey)) {
+                              uniqueSizes.set(sizeKey, []);
+                            }
+                            uniqueSizes.get(sizeKey)!.push(product);
+                          });
+
+                          return Array.from(uniqueSizes.entries()).map(([size, sizeVariants]) => {
+                            const sortedVariants = sizeVariants.sort((a, b) => a.price - b.price);
+                            return (
+                              <div
+                                key={size}
+                                onClick={() => {
+                                  onPriceClick(itemName, size);
+                                  onClose();
+                                }}
+                                className="px-4 py-3 flex justify-between items-center hover:bg-gray-100 cursor-pointer transition-colors"
+                              >
+                                <div className="flex-1 flex items-center">
+                                  <div className="text-base font-semibold text-gray-800 mr-4">
+                                    {size}
+                                  </div>
+                                  <div className="text-right flex-grow grid grid-flow-col gap-8 justify-end">
+                                    {sortedVariants.map((product, index) => (
+                                      <div key={index} className="flex flex-col items-center">
+                                        <div className="text-lg text-black font-bold">
+                                          ${product.price.toFixed(2)}
+                                        </div>
+                                        <div className="text-sm text-gray-500">
+                                          {formatPriceBreak(product)}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-lg text-black font-bold">
-                                ${product.price.toFixed(2)}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {formatPriceBreak(product)}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                            );
+                          });
+                        })()}
                       </div>
                     )}
                   </div>
