@@ -74,13 +74,17 @@ export const parseSize = (sizeString: string | null): number => {
 }
 
 export const getAllProducts = async (): Promise<Product[]> => {
+  // Clear localStorage before fetching
+  localStorage.clear();
+
   // Return dummy data if USE_DUMMY_DATA is true
   if (USE_DUMMY_DATA) {
     return dummyProducts;
   }
 
   try {
-    const response = await fetch('/wp-json/cclist/v1/products');
+    const cacheBust = new Date().getTime();
+    const response = await fetch(`/wp-json/cclist/v1/products?cb=${cacheBust}`);
     if (!response.ok) {
       const errorData = await response.json();
       if (errorData && errorData.code && errorData.message) {
