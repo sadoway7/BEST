@@ -97,31 +97,29 @@ const ProductSelector: React.FC<ProductSelectorProps> = ({
             }}
             onFocus={() => setIsDropdownOpen(true)}
             onKeyDown={handleKeyDown}
-            className="mt-1 block w-full pl-10 pr-4 py-2.5 text-base border border-primary-main bg-white text-gray-800 
-                     focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-primary-light
-                     hover:border-primary-light transition-colors duration-200
-                     sm:text-sm rounded-lg shadow-sm shadow-sm-blue"
-            placeholder="Search products..."
+            className="mt-1 block w-full pl-10 pr-4 py-2.5 text-base bg-white text-gray-900 rounded-lg font-semibold
+                     shadow-[0_2px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)]
+                     transition-shadow duration-200 focus:outline-none"
+            placeholder="Search"
           />
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none mt-1">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 2 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           
           {isDropdownOpen && filteredItems.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-ui-border rounded-lg card-shadow max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-md max-h-60 overflow-auto">
               {filteredItems.map((item, index) => (
                 <div
                   key={item.name}
                   onClick={() => handleItemClick(item.name)}
                   onMouseEnter={() => setHighlightedIndex(index)}
-                  className={`px-4 py-2.5 cursor-pointer text-sm transition-colors duration-150 ${
+                  className={`px-4 py-3 cursor-pointer text-base transition-colors duration-150 ${
                     highlightedIndex === index
-                      ? 'bg-primary-lighter text-primary-main'
-                      : 'text-gray-800 hover:bg-gray-50'
-                  }
-                  ${index !== filteredItems.length - 1 ? 'border-b border-ui-border' : ''}`}
+                      ? 'bg-gray-200 font-bold text-gray-900'
+                      : 'hover:bg-gray-100 font-semibold text-gray-800'
+                  }`}
                 >
                   {item.name}
                 </div>
@@ -134,3 +132,4 @@ const ProductSelector: React.FC<ProductSelectorProps> = ({
   };
 
   export default ProductSelector;
+

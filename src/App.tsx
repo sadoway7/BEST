@@ -80,9 +80,9 @@ const App = () => {
         <Card className="w-full bg-white border-ui-border card-shadow rounded-xl">
           <CardHeader>
             <div className="flex justify-between items-center w-full">
-              <CardTitle className="text-xl font-semibold text-gray-800">Ceramics Canada Catalogue</CardTitle>
+              <CardTitle className="text-xl font-bold text-gray-800">Calculator</CardTitle>
               <button onClick={() => setShowCatalog(true)} className="bg-primary-main hover:bg-primary-light text-white">
-                Select from Catalog
+                Select From Catalog
               </button>
             </div>
           </CardHeader>

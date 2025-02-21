@@ -13,10 +13,10 @@ const AddItemButton: React.FC<AddItemButtonProps> = ({ onClick }) => {
                  flex items-center justify-center space-x-2 
                  focus:outline-none focus:ring-2 focus:ring-primary-lighter focus:ring-offset-2"
     >
-      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-6 w-5" fill="none" stroke="currentColor" viewBox="2 2 20 21">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
       </svg>
-      <span>Add Item</span>
+      <span>Add To List</span>
     </button>
   );
 };

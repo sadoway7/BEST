@@ -38,10 +38,10 @@ const WeightSelector: React.FC<WeightSelectorProps> = ({
           id="weight"
           value={selectedWeight}
           onChange={(e) => onWeightChange(e.target.value)}
-          className="mt-1 block w-full pl-4 pr-10 py-2.5 text-base border border-ui-border bg-white text-gray-800 
-                   focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-primary-main 
-                   hover:border-gray-400 transition-colors duration-200
-                   sm:text-sm rounded-lg shadow-sm appearance-none cursor-pointer"
+          className="mt-1 block w-full pl-4 pr-10 py-2.5 text-base bg-white text-gray-800 rounded-lg font-semibold
+                   shadow-[0_2px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)]
+                   transition-shadow duration-200
+                   focus:outline-none sm:text-sm appearance-none cursor-pointer"
         >
           <option value="" className="text-ui-text-secondary">
             Select a size
