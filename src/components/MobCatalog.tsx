@@ -162,8 +162,8 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
         {/* Product List */}
         <div className="flex-1 flex flex-col min-h-full">
-          <div className="flex justify-between items-center p-4 border-b border-ui-border flex-shrink-0">
-            <h2 className="text-xl font-medium">
+          <div className="flex justify-between items-center p-4 border-b border-ui-border flex-shrink-0 bg-gray-100">
+            <h2 className="text-xl font-semibold">
               {selectedCategory || 'All Products'}
             </h2>
           </div>
@@ -176,28 +176,28 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
             {Object.entries(filteredProducts).map(([category, items]) => (
               <div key={category} className="mb-6 last:mb-0">
                 {Object.entries(items).map(([itemName, variants]) => (
-                  <div 
-                    key={itemName} 
-                    className="border border-ui-border rounded-lg overflow-hidden mb-2"
+                  <div
+                    key={itemName}
+                    className=" rounded-lg overflow-hidden mb-2 shadow-md"
                   >
-                    <div 
+                    <div
                       onClick={() => toggleItemExpansion(itemName)}
-                      className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50"
+                      className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-200 transition-colors bg-gray-200"
                     >
-                      <span className="text-base font-semibold text-gray-900">{itemName}</span>
+                      <span className="text-lg font-bold text-gray-900">{itemName}</span>
                       {expandedItems[itemName] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                     </div>
 
                     {expandedItems[itemName] && (
-                      <div className="border-t border-ui-border divide-y divide-ui-border">
+                      <div className=" divide-y divide-gray-300 bg-white">
                         {variants.map((product: Product) => (
-                          <div 
+                          <div
                             key={`${product.size || 'default'}`}
                             onClick={() => {
                               onPriceClick(itemName, product.size);
                               onClose();
                             }}
-                            className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="px-4 py-3 flex justify-between items-center hover:bg-gray-100 cursor-pointer transition-colors"
                           >
                             <div className="flex-1">
                               <div className="text-base font-semibold text-gray-800">
