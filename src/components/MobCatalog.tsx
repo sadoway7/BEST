@@ -86,7 +86,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
       }, {} as Record<string, Record<string, Product[]>>);
 
     return sortedFiltered;
-  }, [categorizedProducts, searchTerm]);
+  }, [categorizedProducts, searchTerm, selectedCategory]);
 
   const toggleItemExpansion = (itemName: string) => {
     setExpandedItems(prev => ({
@@ -115,9 +115,9 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md my-0 flex flex-col overflow-x-hidden">
+      <div className="bg-gray-50 rounded-xl shadow-xl w-full max-w-md my-0 flex flex-col overflow-x-hidden">
         {/* Search and Categories */}
-        <div className="p-4 border-b border-ui-border flex-shrink-0 relative">
+        <div className="p-4 flex-shrink-0 relative">
           <div className="flex justify-end">
             <button
               onClick={onClose}
@@ -184,7 +184,7 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
                       onClick={() => toggleItemExpansion(itemName)}
                       className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50"
                     >
-                      <span className="text-base font-medium text-gray-900">{itemName}</span>
+                      <span className="text-base font-semibold text-gray-900">{itemName}</span>
                       {expandedItems[itemName] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                     </div>
 
@@ -200,12 +200,12 @@ const MobCatalog: React.FC<CatalogProps> = ({ onClose, onPriceClick, products })
                             className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer transition-colors"
                           >
                             <div className="flex-1">
-                              <div className="text-base text-gray-800">
+                              <div className="text-base font-semibold text-gray-800">
                                 {product.size || 'Standard'}
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-lg text-primary-main">
+                              <div className="text-lg text-black font-bold">
                                 ${product.price.toFixed(2)}
                               </div>
                               <div className="text-sm text-gray-500">
